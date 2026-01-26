@@ -1,0 +1,15 @@
+﻿#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Character.h"
+#include "KCharacterBase.generated.h"
+
+UCLASS()
+class KINET_API AKCharacterBase : public ACharacter
+{
+	GENERATED_BODY()
+
+public:
+	AKCharacterBase();
+
+};
