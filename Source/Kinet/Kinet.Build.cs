@@ -12,6 +12,8 @@ public class Kinet : ModuleRules
 			// Initial Dependencies.
 			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", 
 
+			// UI
+			"UMG",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
