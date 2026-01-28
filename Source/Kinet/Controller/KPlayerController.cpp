@@ -22,6 +22,11 @@ void AKPlayerController::BeginPlay()
 			EIMC->AddMappingContext(IMC_Default, 0);
 		}
 	}
+
+	FInputModeGameOnly InputMode;
+	SetInputMode(InputMode);
+	bShowMouseCursor = false;
+
 }
 
 void AKPlayerController::SetupInputComponent()

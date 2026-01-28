@@ -16,4 +16,7 @@ public:
 	TObjectPtr<UInputAction> Move;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UInputAction> Look;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UInputAction> Jump;
+
 };
