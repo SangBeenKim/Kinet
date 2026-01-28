@@ -3,6 +3,8 @@
 
 void UKGameInstance::MoveToLevel(const FName& LevelName)
 {
+	UGameplayStatics::SetGamePaused(this, false);
+
 	if (LevelName == "Exit")
 	{
 		UKismetSystemLibrary::QuitGame(
@@ -17,18 +19,13 @@ void UKGameInstance::MoveToLevel(const FName& LevelName)
 
 	if (LevelMap.Contains(LevelName))
 	{
-		TSoftObjectPtr<UWorld> LevelPtr = LevelMap[LevelName];
-		if (LevelPtr.IsPending())
+		UWorld* TargetLevel = LevelMap[LevelName];
+		if (IsValid(TargetLevel))
 		{
-			LevelPtr.LoadSynchronous();
-		}
-
-		if (LevelPtr.IsValid())
-		{
-			UGameplayStatics::OpenLevelBySoftObjectPtr(this, LevelPtr);
+			UGameplayStatics::OpenLevelBySoftObjectPtr(this, TargetLevel);
 			return;
 		}
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("LevelName is invalid."));
+	UE_LOG(LogTemp, Warning, TEXT("LevelMap[%s] is invalid."), *LevelName.ToString());
 }

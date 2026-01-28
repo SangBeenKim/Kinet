@@ -14,5 +14,5 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LevelData", meta = (AllowPrivateAccess))
-	TMap<FName, TSoftObjectPtr<UWorld>> LevelMap;
+	TMap<FName, TObjectPtr<UWorld>> LevelMap;
 };
