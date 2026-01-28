@@ -22,6 +22,8 @@ protected:
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnMenuActionSignature OnMenuActionTriggerd;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI|Layout")
+	FMargin ButtonPadding;
 
 protected:
 	UPROPERTY(meta = (BindWidget))
