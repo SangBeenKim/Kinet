@@ -2,7 +2,6 @@
 #include "UI/MenuLayout.h"
 #include "Components/TextBlock.h"
 #include "Animation/WidgetAnimation.h"
-#include "Kismet/KismetSystemLibrary.h"
 #include "Game/KGameInstance.h"
 
 UTitleLayout::UTitleLayout(const FObjectInitializer& ObjectInitializer)
@@ -78,14 +77,7 @@ void UTitleLayout::ShowMainMenu()
 
 void UTitleLayout::SelectMenu(const FName& InActionID)
 {
-	if (InActionID == "Exit")
-	{
-		UKismetSystemLibrary::QuitGame(this, GetOwningPlayer(), EQuitPreference::Quit, false);
-		return;
-	}
-
 	UKGameInstance* GI = Cast<UKGameInstance>(GetGameInstance());
 	checkf(IsValid(GI), TEXT("GameInstance is invalid."));
 	GI->MoveToLevel(InActionID);
-
 }

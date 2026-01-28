@@ -3,6 +3,18 @@
 
 void UKGameInstance::MoveToLevel(const FName& LevelName)
 {
+	if (LevelName == "Exit")
+	{
+		UKismetSystemLibrary::QuitGame(
+			this, 
+			GetFirstLocalPlayerController(GetWorld()), 
+			EQuitPreference::Quit, 
+			false
+		);
+
+		return;
+	}
+
 	if (LevelMap.Contains(LevelName))
 	{
 		TSoftObjectPtr<UWorld> LevelPtr = LevelMap[LevelName];
