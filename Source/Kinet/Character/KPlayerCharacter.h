@@ -7,7 +7,6 @@
 class USpringArmComponent;
 class UCameraComponent;
 class UKInputConfig;
-class UInputMappingContext;
 struct FInputActionValue;
 
 UCLASS()
@@ -33,7 +32,5 @@ protected:
 	TObjectPtr<UCameraComponent> CameraComp;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UKInputConfig> InputConfig;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
-	TObjectPtr<UInputMappingContext> DefaultIMC;
 
 };

@@ -2,7 +2,6 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "Input/KInputConfig.h"
 #include "Kismet/KismetSystemLibrary.h" //LOG
 #include "GameFramework/CharacterMovementComponent.h"
@@ -38,27 +37,17 @@ void AKPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	APlayerController* PlayerController = Cast<APlayerController>(GetController());
-	if (IsValid(PlayerController))
-	{
-		UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-		if (IsValid(Subsystem))
-		{
-			Subsystem->AddMappingContext(DefaultIMC, 0);
-		}
-	}
-
 }
 
 void AKPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	UEnhancedInputComponent* InputComp = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-	if (IsValid(InputComp))
+	
+	UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	if (IsValid(EIC))
 	{
-		InputComp->BindAction(InputConfig->Move, ETriggerEvent::Triggered, this, &ThisClass::InputMove);
-		InputComp->BindAction(InputConfig->Look, ETriggerEvent::Triggered, this, &ThisClass::InputLook);
+		EIC->BindAction(InputConfig->Move, ETriggerEvent::Triggered, this, &ThisClass::InputMove);
+		EIC->BindAction(InputConfig->Look, ETriggerEvent::Triggered, this, &ThisClass::InputLook);
 	}
 }
 

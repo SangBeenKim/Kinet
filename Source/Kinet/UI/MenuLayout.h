@@ -22,13 +22,12 @@ protected:
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnMenuActionSignature OnMenuActionTriggerd;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI|Layout")
-	FMargin ButtonPadding;
 
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UVerticalBox> ButtonList;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<UUserWidget> MenuButtonClass;
-
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI|Layout")
+	FMargin ButtonPadding;
 };
