@@ -1,6 +1,5 @@
 ﻿#include "UI/PauseMenu.h"
 #include "UI/MenuLayout.h"
-#include "Kismet/KismetSystemLibrary.h" // LOG
 
 void UPauseMenu::NativeConstruct()
 {
@@ -21,10 +20,5 @@ void UPauseMenu::NativeConstruct()
 
 void UPauseMenu::SelectMenu(const FName& InActionID)
 {
-	FName Value = InActionID;
-
-	UKismetSystemLibrary::PrintString(
-		this,
-		Value.ToString()
-	);
+	OnSelectedMenu.Broadcast(InActionID);
 }

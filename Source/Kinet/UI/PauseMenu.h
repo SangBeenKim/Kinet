@@ -8,7 +8,7 @@ class UMenuLayout;
 class UTextBlock;
 struct FMenuButtonData;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSelectedMenu, FName, InValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSelectedMenu, const FName&, InValue);
 
 UCLASS()
 class KINET_API UPauseMenu : public UUserWidget

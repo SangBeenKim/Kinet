@@ -2,6 +2,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "UI/PauseMenu.h"
+#include "Game/KGameInstance.h"
 
 void AKPlayerController::BeginPlay()
 {
@@ -78,5 +79,23 @@ void AKPlayerController::CheckPauseMenuWidget()
 		PauseMenuInstance = CreateWidget<UPauseMenu>(this, PauseMenuClass);
 		PauseMenuInstance->AddToViewport();
 		PauseMenuInstance->SetVisibility(ESlateVisibility::Collapsed);
+		if (!PauseMenuInstance->OnSelectedMenu.IsAlreadyBound(this, &ThisClass::HandleMenuAction))
+		{
+			PauseMenuInstance->OnSelectedMenu.AddDynamic(this, &ThisClass::HandleMenuAction);
+		}
 	}
+}
+
+void AKPlayerController::HandleMenuAction(const FName& InActionID)
+{
+	if (InActionID == "Resume")
+	{
+		TogglePauseMenu();
+		return;
+	}
+
+	UKGameInstance* GI = GetGameInstance<UKGameInstance>();
+	checkf(IsValid(GI), TEXT("UKGameInstance is invalid."));
+	GI->MoveToLevel(InActionID);
+
 }

@@ -20,6 +20,8 @@ protected:
 private:
 	void TogglePauseMenu();
 	void CheckPauseMenuWidget();
+	UFUNCTION()
+	void HandleMenuAction(const FName& InActionID);
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess))
