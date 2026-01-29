@@ -17,6 +17,11 @@ class KINET_API AKPlayerCharacter : public AKCharacterBase
 public:
 	AKPlayerCharacter();
 	virtual void BeginPlay() override;
+	virtual float TakeDamage(
+		float DamageAmount, 
+		struct FDamageEvent const& DamageEvent, 
+		class AController* EventInstigator, 
+		AActor* DamageCauser) override;
 
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
@@ -25,6 +30,8 @@ private:
 	void InputMove(const FInputActionValue& InValue);
 	void InputLook(const FInputActionValue& InValue);
 	void InputAttackMelee(const FInputActionValue& InValue);
+	//Test
+	void TestAttack();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpringArm")
