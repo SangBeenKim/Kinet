@@ -4,6 +4,8 @@
 #include "GameFramework/Character.h"
 #include "KCharacterBase.generated.h"
 
+class UAnimMontage;
+
 UCLASS()
 class KINET_API AKCharacterBase : public ACharacter
 {
@@ -11,5 +13,9 @@ class KINET_API AKCharacterBase : public ACharacter
 
 public:
 	AKCharacterBase();
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UAnimMontage> AttackMeleeMontage;
 
 };

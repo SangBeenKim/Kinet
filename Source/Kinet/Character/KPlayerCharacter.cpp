@@ -5,6 +5,7 @@
 #include "Input/KInputConfig.h"
 #include "Kismet/KismetSystemLibrary.h" //LOG
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Animation/KAnimInstance.h"
 
 AKPlayerCharacter::AKPlayerCharacter()
 {
@@ -50,6 +51,7 @@ void AKPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EIC->BindAction(InputConfig->Look, ETriggerEvent::Triggered, this, &ThisClass::InputLook);
 		EIC->BindAction(InputConfig->Jump, ETriggerEvent::Started, this, &ThisClass::Jump);
 		EIC->BindAction(InputConfig->Jump, ETriggerEvent::Completed, this, &ThisClass::StopJumping);
+		EIC->BindAction(InputConfig->Attack_Melee, ETriggerEvent::Started, this, &ThisClass::InputAttackMelee);
 	}
 }
 
@@ -75,5 +77,20 @@ void AKPlayerCharacter::InputLook(const FInputActionValue& InValue)
 
 	AddControllerYawInput(LookVector.X * Sensitivity);
 	AddControllerPitchInput(LookVector.Y * Sensitivity);
+}
+
+void AKPlayerCharacter::InputAttackMelee(const FInputActionValue& InValue)
+{
+	if (GetCharacterMovement()->IsFalling())
+	{
+		return;
+	}
+
+	UKAnimInstance* AnimInstance = Cast<UKAnimInstance>(GetMesh()->GetAnimInstance());
+	if (IsValid(AnimInstance) && IsValid(AttackMeleeMontage) && !AnimInstance->Montage_IsPlaying(AttackMeleeMontage))
+	{
+		AnimInstance->Montage_Play(AttackMeleeMontage);
+	}
+
 }
 

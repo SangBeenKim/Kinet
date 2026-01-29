@@ -18,5 +18,7 @@ public:
 	TObjectPtr<UInputAction> Look;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UInputAction> Jump;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UInputAction> Attack_Melee;
 
 };
