@@ -5,8 +5,6 @@
 #include "Input/KInputConfig.h"
 #include "Kismet/KismetSystemLibrary.h" //LOG
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Animation/KAnimInstance.h"
-#include "Kismet/GameplayStatics.h"
 
 AKPlayerCharacter::AKPlayerCharacter()
 {
@@ -39,28 +37,6 @@ void AKPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-}
-
-float AKPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	float FinalDamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
-	if (GetCharacterMovement()->IsFalling())
-	{
-		return FinalDamageAmount;
-	}
-
-	UKAnimInstance* AnimInstance = Cast<UKAnimInstance>(GetMesh()->GetAnimInstance());
-	if (IsValid(AnimInstance) && IsValid(TakeDamageMontage) && !AnimInstance->Montage_IsPlaying(TakeDamageMontage))
-	{
-		AnimInstance->Montage_Play(TakeDamageMontage);
-		UKismetSystemLibrary::PrintString(
-			this,
-			TEXT("TakeDamage")
-		);
-	}
-
-	return FinalDamageAmount;
 }
 
 void AKPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -102,66 +78,4 @@ void AKPlayerCharacter::InputLook(const FInputActionValue& InValue)
 	AddControllerPitchInput(LookVector.Y * Sensitivity);
 }
 
-void AKPlayerCharacter::InputAttackMelee(const FInputActionValue& InValue)
-{
-	if (GetCharacterMovement()->IsFalling())
-	{
-		return;
-	}
-
-	TestAttack();
-
-	UKAnimInstance* AnimInstance = Cast<UKAnimInstance>(GetMesh()->GetAnimInstance());
-	if (IsValid(AnimInstance) && IsValid(AttackMeleeMontage) && !AnimInstance->Montage_IsPlaying(AttackMeleeMontage))
-	{
-		AnimInstance->Montage_Play(AttackMeleeMontage);
-	}
-
-}
-
-void AKPlayerCharacter::TestAttack()
-{
-	FVector ForwardVector = GetActorForwardVector();
-	FVector StartLocation = GetActorLocation() + (ForwardVector * 100.f); // 캐릭터 앞 100cm 지점
-	float AttackRadius = 50.f; // 구체 반지름
-
-	// 2. 충돌 검사 결과 및 무시할 대상 설정
-	TArray<FHitResult> HitResults;
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-
-	// 3. 스피어 트레이스 실행 (Pawn 채널 기준)
-	bool bHit = GetWorld()->SweepMultiByChannel(
-		HitResults,
-		StartLocation,
-		StartLocation, // 시작과 끝을 같게 하면 그 지점에 구체를 생성함
-		FQuat::Identity,
-		ECC_Pawn, // 기본 Pawn 채널 사용
-		FCollisionShape::MakeSphere(AttackRadius),
-		Params
-	);
-
-	// 디버그용 구체 그리기 (테스트용)
-	FColor DebugColor = bHit ? FColor::Green : FColor::Red;
-	DrawDebugSphere(GetWorld(), StartLocation, AttackRadius, 12, DebugColor, false, 1.f);
-
-	// 4. 대미지 전달
-	if (bHit)
-	{
-		for (const FHitResult& Hit : HitResults)
-		{
-			AActor* HitActor = Hit.GetActor();
-			if (HitActor)
-			{
-				UGameplayStatics::ApplyDamage(
-					HitActor,       // 대미지 받을 액터
-					10.f,           // 대미지 양
-					GetController(),// 공격자 컨트롤러
-					this,           // 공격 유발 액터
-					nullptr         // 대미지 타입 클래스
-				);
-			}
-		}
-	}
-}
 
