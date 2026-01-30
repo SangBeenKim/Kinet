@@ -5,7 +5,6 @@
 #include "Interfaces/HealthInterface.h"
 #include "KStatusComponent.generated.h"
 
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class KINET_API UKStatusComponent : public UActorComponent, public IHealthInterface
 {
