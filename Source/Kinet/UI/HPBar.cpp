@@ -1,23 +1,27 @@
 ﻿#include "UI/HPBar.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
-#include "Character/KCharacterBase.h"
+#include "Interfaces/HealthInterface.h"
 
-void UHPBar::InitializeHPBarWidget(AKCharacterBase* InCharacter)
+void UHPBar::InitializeHPBarWidget(IHealthInterface* InOwner)
 {
-	OnMaxHPChange(InCharacter->GetMaxHP());
-	InCharacter->OnMaxHPChanged.AddUObject(this, &ThisClass::OnMaxHPChange);
-	OnCurrentHPChange(InCharacter->GetCurrentHP());
-	InCharacter->OnCurrentHPChanged.AddUObject(this, &ThisClass::OnCurrentHPChange);
+	if (InOwner == nullptr) return;
+
+	OwnerInterface = InOwner;
+	Owner = Cast<UObject>(OwnerInterface);
+	ensureMsgf(Owner != nullptr, TEXT("[%s] Casting failed IHealthInterface to UObject."), *this->GetName());
+	
+	UpdateProgressBar(OwnerInterface->GetCurrentHealth(), OwnerInterface->GetMaxHealth());
+	OwnerInterface->GetOnUpdatedHealthDelegate().AddUniqueDynamic(this, &ThisClass::UpdateProgressBar);
 }
 
-void UHPBar::UpdateProgressBar()
+void UHPBar::UpdateProgressBar(float InCurrentHP, float InMaxHP)
 {
 	if (IsValid(HPProgressBar) == true)
 	{
-		if (KINDA_SMALL_NUMBER < LastUpdatedMaxHP)
+		if (KINDA_SMALL_NUMBER < InMaxHP)
 		{
-			HPProgressBar->SetPercent(LastUpdatedCurrentHP / LastUpdatedMaxHP);
+			HPProgressBar->SetPercent(InCurrentHP / InMaxHP);
 		}
 		else
 		{
@@ -26,30 +30,15 @@ void UHPBar::UpdateProgressBar()
 	}
 }
 
-void UHPBar::OnMaxHPChange(float InMaxHP)
+void UHPBar::NativeDestruct()
 {
-	if (LastUpdatedMaxHP == InMaxHP)
+	if (Owner.IsValid() && OwnerInterface != nullptr)
 	{
-		return;
+		OwnerInterface->GetOnUpdatedHealthDelegate().RemoveAll(this);
 	}
 
-	LastUpdatedMaxHP = InMaxHP;
+	OwnerInterface = nullptr;
+	Owner.Reset();
 
-	MaxHPText->SetText(FText::FromString(FString::SanitizeFloat(InMaxHP)));
-
-	UpdateProgressBar();
-}
-
-void UHPBar::OnCurrentHPChange(float InCurrentHP)
-{
-	if (LastUpdatedCurrentHP == InCurrentHP)
-	{
-		return;
-	}
-
-	LastUpdatedCurrentHP = InCurrentHP;
-
-	CurrentHPText->SetText(FText::FromString(FString::SanitizeFloat(InCurrentHP)));
-
-	UpdateProgressBar();
+	Super::NativeDestruct();
 }

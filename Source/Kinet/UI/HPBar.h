@@ -4,7 +4,7 @@
 #include "Blueprint/UserWidget.h"
 #include "HPBar.generated.h"
 
-class AKCharacterBase;
+class IHealthInterface;
 class UProgressBar;
 class UTextBlock;
 
@@ -14,23 +14,17 @@ class KINET_API UHPBar : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void InitializeHPBarWidget(AKCharacterBase* InCharacter);
-	void UpdateProgressBar();
+	void InitializeHPBarWidget(IHealthInterface* InOwner);
 	UFUNCTION()
-	void OnMaxHPChange(float InMaxHP);
-	UFUNCTION()
-	void OnCurrentHPChange(float InCurrentHP);
+	void UpdateProgressBar(float InCurrentHP, float InMaxHP);
+	virtual void NativeDestruct() override;
 
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UProgressBar> HPProgressBar;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	TObjectPtr<UTextBlock> CurrentHPText;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
-	TObjectPtr<UTextBlock> MaxHPText;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TObjectPtr<AActor> OwningActor;
-	float LastUpdatedMaxHP = 0.f;
-	float LastUpdatedCurrentHP = 0.f;
 
+private:
+	// 델리게이트 제거용 포인터
+	IHealthInterface* OwnerInterface;
+	TWeakObjectPtr<UObject> Owner;
 };

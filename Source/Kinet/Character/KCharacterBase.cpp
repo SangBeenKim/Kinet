@@ -5,6 +5,7 @@
 #include "UI/HPBar.h"
 #include "Animation/KAnimInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/KStatusComponent.h"
 
 AKCharacterBase::AKCharacterBase()
 {
@@ -31,20 +32,17 @@ AKCharacterBase::AKCharacterBase()
 	HPBarWidgetComp->SetWidgetSpace(EWidgetSpace::Screen);
 	HPBarWidgetComp->SetDrawSize(FVector2D(150.f, 20.f));
 
-	bIsDead = false;
+	StatusComp = CreateDefaultSubobject<UKStatusComponent>(TEXT("StatusComp"));
+
 }
 
 float AKCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	float FinalDamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	if (bIsDead) return 0.f;
+	StatusComp->ApplyDamage(FinalDamageAmount);
 
-	CurrentHP = FMath::Clamp(CurrentHP - FinalDamageAmount, 0.f, MaxHP);
-
-	SetCurrentHP(CurrentHP);
-
-	if (CurrentHP <= 0.f)
+	if (StatusComp->IsDead() == true)
 	{
 		Die();
 		return FinalDamageAmount;
@@ -59,29 +57,6 @@ float AKCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& Damage
 	return FinalDamageAmount;
 }
 
-void AKCharacterBase::SetMaxHP(float InMaxHP)
-{
-	MaxHP = InMaxHP;
-
-	if (MaxHP < KINDA_SMALL_NUMBER)
-	{
-		MaxHP = 0.1f;
-	}
-
-	OnMaxHPChanged.Broadcast(MaxHP);
-}
-
-void AKCharacterBase::SetCurrentHP(float InCurrentHP)
-{
-	CurrentHP = InCurrentHP;
-	if (CurrentHP <= KINDA_SMALL_NUMBER)
-	{
-		CurrentHP = 0.f;
-		OnOutOfCurrentHP.Broadcast();
-	}
-	OnCurrentHPChanged.Broadcast(CurrentHP);
-}
-
 void AKCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
@@ -92,19 +67,14 @@ void AKCharacterBase::BeginPlay()
 		UHPBar* HPBarWidget = Cast<UHPBar>(WidgetInstance);
 		if (IsValid(HPBarWidget))
 		{
-			HPBarWidget->InitializeHPBarWidget(this);
+			HPBarWidget->InitializeHPBarWidget(StatusComp);
 		}
 	}
 	
-
 }
 
 void AKCharacterBase::Die()
 {
-	if (bIsDead) return;
-
-	bIsDead = true;
-
 	UKAnimInstance* AnimInstance = Cast<UKAnimInstance>(GetMesh()->GetAnimInstance());
 	if (IsValid(AnimInstance) && IsValid(DeathMontage) && !AnimInstance->Montage_IsPlaying(DeathMontage))
 	{
