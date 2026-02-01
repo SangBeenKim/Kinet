@@ -1,5 +1,5 @@
 ﻿#include "Animation/KAnimInstance.h"
-#include "Character/KCharacterBase.h"
+#include "Character/KNonPlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 void UKAnimInstance::NativeInitializeAnimation()
@@ -22,6 +22,12 @@ void UKAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		float GroundAcceleration = OwnerCharacterMovement->GetCurrentAcceleration().Size2D();
 		bool bIsAccelerationNearlyZero = FMath::IsNearlyZero(GroundAcceleration);
 		bShouldMove = (KINDA_SMALL_NUMBER < GroundSpeed) && (bIsAccelerationNearlyZero == false);
+
+		if (AKNonPlayerCharacter* OwnerNPC = Cast<AKNonPlayerCharacter>(OwnerCharacter))
+		{
+			bShouldMove = KINDA_SMALL_NUMBER < GroundSpeed;
+		}
+
 		bIsFalling = OwnerCharacterMovement->IsFalling();
 	}
 }

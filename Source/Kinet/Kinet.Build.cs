@@ -14,6 +14,9 @@ public class Kinet : ModuleRules
 
 			// UI
 			"UMG", "Slate", "SlateCore",
+
+			// AI
+			"AIModule", "NavigationSystem", "GameplayTasks", 
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
