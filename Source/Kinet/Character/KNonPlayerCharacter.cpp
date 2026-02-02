@@ -5,8 +5,10 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Character/KPlayerCharacter.h"
+#include "Animation/KAnimInstance.h"
 
 AKNonPlayerCharacter::AKNonPlayerCharacter()
+	: bIsNowAttacking(false)
 {
 	PrimaryActorTick.bCanEverTick = false;
 
@@ -32,18 +34,48 @@ void AKNonPlayerCharacter::BeginPlay()
 
 }
 
-float AKNonPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+void AKNonPlayerCharacter::BeginAttack()
 {
-	float FinalDamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	UKAnimInstance* AnimInstance = Cast<UKAnimInstance>(GetMesh()->GetAnimInstance());
+	checkf(IsValid(AnimInstance) == true, TEXT("Invalid AnimInstance"));
 
-	if (StatusComp->IsDead() == true)
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	if (IsValid(AnimInstance) && IsValid(AttackMeleeMontage) && AnimInstance->Montage_IsPlaying(AttackMeleeMontage) == false)
 	{
-		AKAIController* AIController = Cast<AKAIController>(GetController());
-		if (IsValid(AIController))
-		{
-			AIController->EndAI();
-		}
-	}
+		AnimInstance->Montage_Play(AttackMeleeMontage);
 
-	return FinalDamageAmount;
+		bIsNowAttacking = true;
+
+		TestAttack();
+
+		if (OnAttackMontageEndedDelegate.IsBound() == false)
+		{
+			OnAttackMontageEndedDelegate.BindUObject(this, &AKNonPlayerCharacter::EndAttack);
+			AnimInstance->Montage_SetEndDelegate(OnAttackMontageEndedDelegate, AttackMeleeMontage);
+		}
+
+	}
+}
+
+void AKNonPlayerCharacter::EndAttack(UAnimMontage* InMontage, bool bInterruped)
+{
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+
+	bIsNowAttacking = false;
+
+	if (OnAttackMontageEndedDelegate.IsBound() == true)
+	{
+		OnAttackMontageEndedDelegate.Unbind();
+	}
+}
+
+void AKNonPlayerCharacter::Die()
+{
+	Super::Die();
+
+	AKAIController* AIController = Cast<AKAIController>(GetController());
+	if (IsValid(AIController))
+	{
+		AIController->EndAI();
+	}
 }

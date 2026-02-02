@@ -25,8 +25,6 @@ protected:
 		AActor* DamageCauser) override;
 	virtual void Die();
 	void InputAttackMelee();
-
-private:
 	//Test
 	void TestAttack();
 

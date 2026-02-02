@@ -24,6 +24,7 @@ protected:
 private:
 	void InputMove(const FInputActionValue& InValue);
 	void InputLook(const FInputActionValue& InValue);
+	virtual void Die() override;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpringArm")

@@ -82,13 +82,8 @@ void AKCharacterBase::Die()
 	}
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	if (IsValid(GetController()))
-	{
-		GetController()->UnPossess();
-	}
-
 	SetLifeSpan(1.f);
+
 }
 
 void AKCharacterBase::InputAttackMelee()

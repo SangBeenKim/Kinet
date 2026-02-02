@@ -25,10 +25,10 @@ protected:
 
 public:
 	static const float PatrolRadius;
-	static int32 ShowAIDebug;
 	static const FName StartPatrolPositionKey;
 	static const FName EndPatrolPositionKey;
 	static const FName TargetCharacterKey;
+	static int32 ShowAIDebug;
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess))

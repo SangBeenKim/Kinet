@@ -4,6 +4,8 @@
 #include "Character/KCharacterBase.h"
 #include "KNonPlayerCharacter.generated.h"
 
+DECLARE_DELEGATE_TwoParams(FOnAttackMontageEnded, UAnimMontage*, bool /*bInterrupted*/)
+
 UCLASS()
 class KINET_API AKNonPlayerCharacter : public AKCharacterBase
 {
@@ -12,12 +14,14 @@ class KINET_API AKNonPlayerCharacter : public AKCharacterBase
 public:
 	AKNonPlayerCharacter();
 	virtual void BeginPlay() override;
+	virtual void BeginAttack();
 
 protected:
-	virtual float TakeDamage(
-		float DamageAmount,
-		struct FDamageEvent const& DamageEvent,
-		class AController* EventInstigator,
-		AActor* DamageCauser) override;
+	virtual void EndAttack(UAnimMontage* InMontage, bool bInterruped);
+	virtual void Die() override;
+
+public:
+	bool bIsNowAttacking;
+	FOnAttackMontageEnded OnAttackMontageEndedDelegate;
 
 };

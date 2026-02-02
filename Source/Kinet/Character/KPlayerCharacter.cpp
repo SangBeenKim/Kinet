@@ -78,4 +78,14 @@ void AKPlayerCharacter::InputLook(const FInputActionValue& InValue)
 	AddControllerPitchInput(LookVector.Y * Sensitivity);
 }
 
+void AKPlayerCharacter::Die()
+{
+	Super::Die();
+
+	if (IsValid(GetController()))
+	{
+		GetController()->UnPossess();
+	}
+}
+
 
