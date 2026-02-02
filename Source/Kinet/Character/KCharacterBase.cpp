@@ -7,7 +7,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/KStatusComponent.h"
 
-AKCharacterBase::AKCharacterBase()
+AKCharacterBase::AKCharacterBase(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -25,15 +26,17 @@ AKCharacterBase::AKCharacterBase()
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.35f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
-
-	HPBarWidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBarWidgetComp"));
-	HPBarWidgetComp->SetupAttachment(GetMesh());
-	HPBarWidgetComp->SetRelativeLocation(FVector(0.f, 0.f, 200.f));
-	HPBarWidgetComp->SetWidgetSpace(EWidgetSpace::Screen);
-	HPBarWidgetComp->SetDrawSize(FVector2D(150.f, 20.f));
-
+	
 	StatusComp = CreateDefaultSubobject<UKStatusComponent>(TEXT("StatusComp"));
 
+	HPBarWidgetComp = ObjectInitializer.CreateOptionalDefaultSubobject<UWidgetComponent>(this, TEXT("HPBarWidgetComp"));
+	if (IsValid(HPBarWidgetComp))
+	{
+		HPBarWidgetComp->SetupAttachment(GetMesh());
+		HPBarWidgetComp->SetRelativeLocation(FVector(0.f, 0.f, 200.f));
+		HPBarWidgetComp->SetWidgetSpace(EWidgetSpace::Screen);
+		HPBarWidgetComp->SetDrawSize(FVector2D(150.f, 20.f));
+	}
 }
 
 float AKCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -61,13 +64,16 @@ void AKCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UUserWidget* WidgetInstance = HPBarWidgetComp->GetUserWidgetObject();
-	if (IsValid(WidgetInstance))
+	if (IsValid(HPBarWidgetComp))
 	{
-		UHPBar* HPBarWidget = Cast<UHPBar>(WidgetInstance);
-		if (IsValid(HPBarWidget))
+		UUserWidget* WidgetInstance = HPBarWidgetComp->GetUserWidgetObject();
+		if (IsValid(WidgetInstance))
 		{
-			HPBarWidget->InitializeHPBarWidget(StatusComp);
+			UHPBar* HPBarWidget = Cast<UHPBar>(WidgetInstance);
+			if (IsValid(HPBarWidget))
+			{
+				HPBarWidget->InitializeHPBarWidget(StatusComp);
+			}
 		}
 	}
 	

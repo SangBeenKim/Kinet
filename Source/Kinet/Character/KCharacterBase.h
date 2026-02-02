@@ -14,7 +14,8 @@ class KINET_API AKCharacterBase : public ACharacter
 	GENERATED_BODY()
 
 public:
-	AKCharacterBase();
+	AKCharacterBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+	UKStatusComponent* GetStatusComponent() const { return StatusComp; }
 
 protected:
 	virtual void BeginPlay() override;

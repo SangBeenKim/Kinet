@@ -1,8 +1,11 @@
 ﻿#include "Controller/KPlayerController.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
-#include "UI/PauseMenu.h"
 #include "Game/KGameInstance.h"
+#include "UI/PauseMenu.h" // <- 의존성 분리 예정
+#include "UI/KHUD.h"
+#include "Character/KCharacterBase.h"
+#include "Components/KStatusComponent.h"
 
 void AKPlayerController::BeginPlay()
 {
@@ -23,9 +26,7 @@ void AKPlayerController::BeginPlay()
 		}
 	}
 
-	FInputModeGameOnly InputMode;
-	SetInputMode(InputMode);
-	bShowMouseCursor = false;
+	CreateHUD();
 
 }
 
@@ -36,7 +37,7 @@ void AKPlayerController::SetupInputComponent()
 	UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InputComponent);
 	if (IsValid(EIC))
 	{
-		if (IA_Pause != nullptr)
+		if (IsValid(IA_Pause))
 		{
 			IA_Pause->bTriggerWhenPaused = true;
 			EIC->BindAction(IA_Pause, ETriggerEvent::Started, this, &ThisClass::TogglePauseMenu);
@@ -45,49 +46,45 @@ void AKPlayerController::SetupInputComponent()
 
 }
 
+void AKPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+
+	CreateHUD();
+
+	AKCharacterBase* PlayerCharacter = Cast<AKCharacterBase>(InPawn);
+	if (IsValid(PlayerCharacter))
+	{
+		if (IsValid(HUDInstance))
+		{
+			HUDInstance->InitializeHUD(PlayerCharacter->GetStatusComponent());
+		}
+	}
+}
+
 void AKPlayerController::TogglePauseMenu()
 {
 	bool bNewPauseState = !IsPaused();
 
 	SetPause(bNewPauseState);
-	CheckPauseMenuWidget();
 	
-	if (IsValid(PauseMenuInstance))
+	if (IsValid(HUDInstance))
 	{
-		PauseMenuInstance->SetVisibility(bNewPauseState ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
-	}
+		bNewPauseState ? HUDInstance->ShowPauseMenu() : HUDInstance->ClosePauseMenu();
 
-	if (bNewPauseState)
-	{
-		FInputModeGameAndUI InputMode;
-		InputMode.SetWidgetToFocus(PauseMenuInstance->GetCachedWidget());
-		SetInputMode(InputMode);
-		bShowMouseCursor = true;
-	}
-	else
-	{
-		SetInputMode(FInputModeGameOnly());
-		bShowMouseCursor = false;
-	}
-
-}
-
-void AKPlayerController::CheckPauseMenuWidget()
-{
-	if (!ensureMsgf(IsValid(PauseMenuClass), TEXT("PauseMenuClass is invalid.")))
-	{
-		return;
-	}
-	
-	if (PauseMenuInstance == nullptr)
-	{
-		PauseMenuInstance = CreateWidget<UPauseMenu>(this, PauseMenuClass);
-		PauseMenuInstance->AddToViewport();
-		PauseMenuInstance->SetVisibility(ESlateVisibility::Collapsed);
-		if (!PauseMenuInstance->OnSelectedMenu.IsAlreadyBound(this, &ThisClass::HandleMenuAction))
+		if (bNewPauseState)
 		{
-			PauseMenuInstance->OnSelectedMenu.AddDynamic(this, &ThisClass::HandleMenuAction);
+			FInputModeGameAndUI InputMode;
+			InputMode.SetWidgetToFocus(HUDInstance->GetCachedWidget());
+			SetInputMode(InputMode);
+			bShowMouseCursor = true;
 		}
+		else
+		{
+			SetInputMode(FInputModeGameOnly());
+			bShowMouseCursor = false;
+		}
+
 	}
 }
 
@@ -103,4 +100,28 @@ void AKPlayerController::HandleMenuAction(const FName& InActionID)
 	checkf(IsValid(GI), TEXT("UKGameInstance is invalid."));
 	GI->MoveToLevel(InActionID);
 
+}
+
+void AKPlayerController::CreateHUD()
+{
+	if (!ensureMsgf(IsValid(HUDClass), TEXT("HUDClass is invalid.")))
+	{
+		return;
+	}
+
+	if (IsValid(HUDInstance))
+	{
+		return;
+	}
+
+	HUDInstance = CreateWidget<UKHUD>(this, HUDClass);
+	if (IsValid(HUDInstance))
+	{
+		HUDInstance->HUD_PauseMenu->OnSelectedMenu.AddUniqueDynamic(this, &ThisClass::HandleMenuAction);
+		HUDInstance->AddToViewport();
+
+		FInputModeGameOnly InputMode;
+		SetInputMode(InputMode);
+		bShowMouseCursor = false;
+	}
 }

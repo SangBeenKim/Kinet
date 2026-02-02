@@ -7,8 +7,9 @@
 #include "Character/KPlayerCharacter.h"
 #include "Animation/KAnimInstance.h"
 
-AKNonPlayerCharacter::AKNonPlayerCharacter()
-	: bIsNowAttacking(false)
+AKNonPlayerCharacter::AKNonPlayerCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+	, bIsNowAttacking(false)
 {
 	PrimaryActorTick.bCanEverTick = false;
 

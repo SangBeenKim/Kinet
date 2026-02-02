@@ -12,7 +12,7 @@ class KINET_API AKNonPlayerCharacter : public AKCharacterBase
 	GENERATED_BODY()
 	
 public:
-	AKNonPlayerCharacter();
+	AKNonPlayerCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	virtual void BeginPlay() override;
 	virtual void BeginAttack();
 

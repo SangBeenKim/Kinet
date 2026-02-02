@@ -6,7 +6,8 @@
 #include "Kismet/KismetSystemLibrary.h" //LOG
 #include "GameFramework/CharacterMovementComponent.h"
 
-AKPlayerCharacter::AKPlayerCharacter()
+AKPlayerCharacter::AKPlayerCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.DoNotCreateDefaultSubobject(TEXT("HPBarWidgetComp")))
 {
 	PrimaryActorTick.bCanEverTick = false;
 

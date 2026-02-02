@@ -15,7 +15,7 @@ class KINET_API AKPlayerCharacter : public AKCharacterBase
 	GENERATED_BODY()
 
 public:
-	AKPlayerCharacter();
+	AKPlayerCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	virtual void BeginPlay() override;
 
 protected:
