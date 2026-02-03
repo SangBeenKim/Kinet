@@ -27,6 +27,7 @@ private:
 	void InputMove(const FInputActionValue& InValue);
 	void InputLook(const FInputActionValue& InValue);
 	void InputInteract();
+	void InputTest();
 	virtual void Die() override;
 
 protected:
@@ -42,4 +43,6 @@ protected:
 	float InteractRange;
 	UPROPERTY(EditAnywhere, Category = "InteractRange")
 	float InteractRadius;
+	UPROPERTY(EditDefaultsOnly, Category = "AnimMontage")
+	TObjectPtr<UAnimMontage> GetPistol;
 };

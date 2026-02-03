@@ -6,6 +6,7 @@
 #include "KWeapon.generated.h"
 
 class USphereComponent;
+class AKPlayerCharacter;
 
 UCLASS()
 class KINET_API AKWeapon : public AActor, public IInteractable
@@ -25,6 +26,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	void HandleAttackSignal(FName SignalName);
+	void CreateHitTrace();
+	void ResetHitHistory();
 
 private:
 	UFUNCTION()
@@ -55,5 +59,9 @@ protected:
 	TObjectPtr<USphereComponent> DetectPlayerCharacterComp;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AnimMontage")
 	TObjectPtr<UAnimMontage> AM_Attack;
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<AKPlayerCharacter> OwnerCharacter;
+	UPROPERTY()
+	TArray<AActor*> HitHistory;
 
 };

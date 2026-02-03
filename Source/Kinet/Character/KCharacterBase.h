@@ -8,6 +8,8 @@ class UAnimMontage;
 class UWidgetComponent;
 class UKStatusComponent;
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnAttackNotifySignature, FName);
+
 UCLASS()
 class KINET_API AKCharacterBase : public ACharacter
 {
@@ -16,6 +18,7 @@ class KINET_API AKCharacterBase : public ACharacter
 public:
 	AKCharacterBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	UKStatusComponent* GetStatusComponent() const { return StatusComp; }
+	FOnAttackNotifySignature OnAttackNotify;
 
 protected:
 	virtual void BeginPlay() override;

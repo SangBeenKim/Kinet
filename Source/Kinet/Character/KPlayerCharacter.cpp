@@ -8,6 +8,7 @@
 #include "Engine/OverlapResult.h"
 #include "Items/KWeapon.h"
 #include "Interfaces/Interactable.h"
+#include "Animation/KAnimInstance.h"
 
 AKPlayerCharacter::AKPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.DoNotCreateDefaultSubobject(TEXT("HPBarWidgetComp")))
@@ -71,6 +72,9 @@ void AKPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EIC->BindAction(InputConfig->Jump, ETriggerEvent::Completed, this, &ThisClass::StopJumping);
 		EIC->BindAction(InputConfig->Attack_Melee, ETriggerEvent::Started, this, &ThisClass::InputAttackMelee);
 		EIC->BindAction(InputConfig->Interact, ETriggerEvent::Started, this, &ThisClass::InputInteract);
+		//Test
+		EIC->BindAction(InputConfig->Test, ETriggerEvent::Started, this, &ThisClass::InputTest);
+		//Test
 	}
 }
 
@@ -128,8 +132,28 @@ void AKPlayerCharacter::InputInteract()
 			if (IInteractable* TargetActor = Cast<IInteractable>(HitActor))
 			{
 				TargetActor->Interact(this);
+				UKAnimInstance* AnimInstance = Cast<UKAnimInstance>(GetMesh()->GetAnimInstance());
+				if (IsValid(AnimInstance) && IsValid(GetPistol) && !AnimInstance->Montage_IsPlaying(GetPistol))
+				{
+					AnimInstance->Montage_Play(GetPistol);
+				}
 				break;
 			}
+		}
+	}
+}
+
+void AKPlayerCharacter::InputTest()
+{
+	if (!IsValid(CurrentWeapon)) return;
+
+	UAnimMontage* AttackMontage = CurrentWeapon->Attack();
+	if (IsValid(AttackMontage))
+	{
+		UKAnimInstance* AnimInstance = Cast<UKAnimInstance>(GetMesh()->GetAnimInstance());
+		if (IsValid(AnimInstance) && !AnimInstance->Montage_IsPlaying(AttackMontage))
+		{
+			AnimInstance->Montage_Play(AttackMontage);
 		}
 	}
 }
