@@ -5,9 +5,14 @@
 #include "Input/KInputConfig.h"
 #include "Kismet/KismetSystemLibrary.h" //LOG
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Engine/OverlapResult.h"
+#include "Items/KWeapon.h"
+#include "Interfaces/Interactable.h"
 
 AKPlayerCharacter::AKPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.DoNotCreateDefaultSubobject(TEXT("HPBarWidgetComp")))
+	, InteractRange(150.f)
+	, InteractRadius(100.f)
 {
 	PrimaryActorTick.bCanEverTick = false;
 
@@ -31,13 +36,26 @@ AKPlayerCharacter::AKPlayerCharacter(const FObjectInitializer& ObjectInitializer
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(SpringArmComp);
 	CameraComp->bUsePawnControlRotation = false;
-
+	
 }
 
 void AKPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+}
+
+void AKPlayerCharacter::SetCurrentWeapon(AKWeapon* InWeapon)
+{
+	if (!IsValid(InWeapon) || CurrentWeapon == InWeapon) return;
+
+	if (IsValid(CurrentWeapon))
+	{
+		CurrentWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		CurrentWeapon->SetOwner(nullptr);
+	}
+
+	CurrentWeapon = InWeapon;
 }
 
 void AKPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -52,6 +70,7 @@ void AKPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EIC->BindAction(InputConfig->Jump, ETriggerEvent::Started, this, &ThisClass::Jump);
 		EIC->BindAction(InputConfig->Jump, ETriggerEvent::Completed, this, &ThisClass::StopJumping);
 		EIC->BindAction(InputConfig->Attack_Melee, ETriggerEvent::Started, this, &ThisClass::InputAttackMelee);
+		EIC->BindAction(InputConfig->Interact, ETriggerEvent::Started, this, &ThisClass::InputInteract);
 	}
 }
 
@@ -77,6 +96,42 @@ void AKPlayerCharacter::InputLook(const FInputActionValue& InValue)
 
 	AddControllerYawInput(LookVector.X * Sensitivity);
 	AddControllerPitchInput(LookVector.Y * Sensitivity);
+}
+
+void AKPlayerCharacter::InputInteract()
+{
+	FVector ActorLocation = GetActorLocation();
+	FVector Forward = GetActorForwardVector();
+	FVector SphereCenter = ActorLocation + (Forward * InteractRange);
+
+	TArray<FOverlapResult> Overlaps;
+	FCollisionShape Sphere = FCollisionShape::MakeSphere(InteractRadius);
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	bool bHit = GetWorld()->OverlapMultiByChannel(
+		Overlaps,
+		SphereCenter,
+		FQuat::Identity,
+		ECC_Visibility,
+		Sphere,
+		Params
+	);
+	// 디버그 드로잉
+	DrawDebugSphere(GetWorld(), SphereCenter, InteractRadius, 12, FColor::Green, false, 2.0f);
+
+	if (bHit)
+	{
+		for (const FOverlapResult& Result : Overlaps)
+		{
+			AActor* HitActor = Result.GetActor();
+			if (IInteractable* TargetActor = Cast<IInteractable>(HitActor))
+			{
+				TargetActor->Interact(this);
+				break;
+			}
+		}
+	}
 }
 
 void AKPlayerCharacter::Die()

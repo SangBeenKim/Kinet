@@ -40,4 +40,5 @@ protected:
 	TObjectPtr<UWidgetComponent> HPBarWidgetComp;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status")
 	TObjectPtr<UKStatusComponent> StatusComp;
+
 };
