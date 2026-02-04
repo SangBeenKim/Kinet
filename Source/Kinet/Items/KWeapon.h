@@ -23,8 +23,9 @@ public:
 	// ~IInteractable
 
 	void ExecuteAttack();
-	virtual UAnimMontage* Attack();
 	void EquipWeapon(AKCharacterBase* InCharacter);
+	void UnequipWeapon();
+	void DestroyWeapon(AKCharacterBase* InCharacter);
 
 protected:
 	virtual void BeginPlay() override;
@@ -61,8 +62,8 @@ protected:
 	TObjectPtr<USphereComponent> DetectPlayerCharacterComp;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AnimMontage")
 	TObjectPtr<UAnimMontage> AM_Attack;
-	//UPROPERTY(VisibleAnywhere)
-	//TObjectPtr<AKPlayerCharacter> OwnerCharacter;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AnimMontage")
+	TObjectPtr<UAnimMontage> AM_GetWeapon;
 
 private:
 	UPROPERTY()

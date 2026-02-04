@@ -23,6 +23,7 @@ void AKWeapon::Interact(AActor* Interactor)
 	if (AKCharacterBase* OwnerCharacter = Cast<AKCharacterBase>(Interactor))
 	{
 		SetOwner(OwnerCharacter);
+		SetInstigator(OwnerCharacter);
 		EquipWeapon(OwnerCharacter);
 	}
 
@@ -39,13 +40,6 @@ void AKWeapon::ExecuteAttack()
 	}
 }
 
-UAnimMontage* AKWeapon::Attack()
-{
-	if (IsValid(AM_Attack)) return AM_Attack;
-
-	return nullptr;
-}
-
 void AKWeapon::EquipWeapon(AKCharacterBase* InCharacter)
 {
 	if (!IsValid(InCharacter)) return;
@@ -54,11 +48,47 @@ void AKWeapon::EquipWeapon(AKCharacterBase* InCharacter)
 	AttachToComponent(InCharacter->GetMesh(), AttachmentRules, FName(TEXT("hand_rSocket")));
 	SetActorEnableCollision(false);
 	StaticMeshComp->SetSimulatePhysics(false);
+	StaticMeshComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
 	InCharacter->SetCurrentWeapon(this);
-	if (!InCharacter->OnAttackNotify.IsBound())
+	InCharacter->OnAttackNotify.RemoveAll(this);
+	InCharacter->OnAttackNotify.AddUObject(this, &ThisClass::HandleAttackSignal);
+
+	if (IsValid(AM_GetWeapon))
 	{
-		InCharacter->OnAttackNotify.AddUObject(this, &ThisClass::HandleAttackSignal);
+		InCharacter->PlayAnimMontage(AM_GetWeapon);
 	}
+
+}
+
+void AKWeapon::UnequipWeapon()
+{
+	if (AKCharacterBase* OwnerCharacter = Cast<AKCharacterBase>(GetOwner()))
+	{
+		OwnerCharacter->OnAttackNotify.RemoveAll(this);
+	}
+
+	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
+	DetachFromActor(DetachRules);
+
+	SetActorEnableCollision(true);
+	if (StaticMeshComp)
+	{
+		StaticMeshComp->SetSimulatePhysics(true);
+		StaticMeshComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	}
+
+	SetOwner(nullptr);
+	SetInstigator(nullptr);
+}
+
+void AKWeapon::DestroyWeapon(AKCharacterBase* InCharacter)
+{
+	if (GetOwner() != InCharacter) return;
+
+	UnequipWeapon();
+	
+	Destroy();
 }
 
 void AKWeapon::BeginPlay()

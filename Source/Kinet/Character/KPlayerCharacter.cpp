@@ -118,11 +118,6 @@ void AKPlayerCharacter::InputInteract()
 			if (IInteractable* TargetActor = Cast<IInteractable>(HitActor))
 			{
 				TargetActor->Interact(this);
-				UKAnimInstance* AnimInstance = Cast<UKAnimInstance>(GetMesh()->GetAnimInstance());
-				if (IsValid(AnimInstance) && IsValid(GetPistol) && !AnimInstance->Montage_IsPlaying(GetPistol))
-				{
-					AnimInstance->Montage_Play(GetPistol);
-				}
 				break;
 			}
 		}
@@ -131,16 +126,7 @@ void AKPlayerCharacter::InputInteract()
 
 void AKPlayerCharacter::InputTest()
 {
-	//if (!IsValid(CurrentWeapon)) return;
-
-	//UAnimMontage* AttackMontage = CurrentWeapon->Attack();
-	//if (IsValid(AttackMontage))
-	//{
-	//	if (IsValid(CharacterAnim) && !CharacterAnim->Montage_IsPlaying(AttackMontage))
-	//	{
-	//		CharacterAnim->Montage_Play(AttackMontage);
-	//	}
-	//}
+	// TestLogic
 }
 
 void AKPlayerCharacter::Die()

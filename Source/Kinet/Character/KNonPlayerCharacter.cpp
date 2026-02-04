@@ -2,15 +2,10 @@
 #include "Controller/KAIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/KStatusComponent.h"
-//#include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
-//#include "Character/KPlayerCharacter.h"
-//#include "Animation/KAnimInstance.h"
 #include "Items/KWeapon.h"
 
 AKNonPlayerCharacter::AKNonPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	, bIsNowAttacking(false)
 {
 	PrimaryActorTick.bCanEverTick = false;
 
@@ -55,14 +50,10 @@ void AKNonPlayerCharacter::BeginAttack()
 {
 	if (!IsValid(CurrentWeapon)) return;
 
-	bIsNowAttacking = true;
 	StatusComp->bIsActionLocked = true;
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
-	if (IsValid(CurrentWeapon))
-	{
-		CurrentWeapon->ExecuteAttack();
-	}
+	CurrentWeapon->ExecuteAttack();
 
 }
 

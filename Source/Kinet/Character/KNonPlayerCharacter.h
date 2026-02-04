@@ -4,8 +4,6 @@
 #include "Character/KCharacterBase.h"
 #include "KNonPlayerCharacter.generated.h"
 
-DECLARE_DELEGATE_TwoParams(FOnAttackMontageEnded, UAnimMontage*, bool /*bInterrupted*/)
-
 UCLASS()
 class KINET_API AKNonPlayerCharacter : public AKCharacterBase
 {
@@ -19,10 +17,6 @@ public:
 protected:
 	virtual void OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted) override;
 	virtual void Die() override;
-
-public:
-	bool bIsNowAttacking;
-	FOnAttackMontageEnded OnAttackMontageEndedDelegate;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Combat|Weapon")

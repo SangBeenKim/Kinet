@@ -4,7 +4,6 @@
 #include "Components/WidgetComponent.h"
 #include "UI/HPBar.h"
 #include "Animation/KAnimInstance.h"
-#include "Kismet/GameplayStatics.h"
 #include "Components/KStatusComponent.h"
 #include "Items/KWeapon.h"
 
@@ -119,9 +118,17 @@ void AKCharacterBase::BeginPlay()
 
 void AKCharacterBase::Die()
 {
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+
 	if (IsValid(CharacterAnim) && IsValid(DeathMontage) && !CharacterAnim->Montage_IsPlaying(DeathMontage))
 	{
 		CharacterAnim->Montage_Play(DeathMontage);
+	}
+
+	if (IsValid(CurrentWeapon))
+	{
+		CurrentWeapon->DestroyWeapon(this);
+		CurrentWeapon = nullptr;
 	}
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);

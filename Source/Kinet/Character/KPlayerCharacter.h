@@ -39,7 +39,5 @@ protected:
 	float InteractRange;
 	UPROPERTY(EditAnywhere, Category = "InteractRange")
 	float InteractRadius;
-	UPROPERTY(EditDefaultsOnly, Category = "AnimMontage")
-	TObjectPtr<UAnimMontage> GetPistol;
 	
 };

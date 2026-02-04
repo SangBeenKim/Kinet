@@ -21,6 +21,7 @@ public:
 	AKCharacterBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	UKStatusComponent* GetStatusComponent() const { return StatusComp; }
 	virtual void SetCurrentWeapon(AKWeapon* InWeapon);
+	AKWeapon* GetCurrentWeapon() const { return CurrentWeapon; }
 	void PlayAnimMontage(UAnimMontage* InMontage);
 
 protected:
@@ -38,8 +39,8 @@ public:
 	FOnAttackNotifySignature OnAttackNotify;
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UAnimMontage> AttackMeleeMontage;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	//TObjectPtr<UAnimMontage> AttackMeleeMontage;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UAnimMontage> TakeDamageMontage;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
