@@ -9,6 +9,8 @@
 
 AKCharacterBase::AKCharacterBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
+	, NormalSpeed(350.f)
+	, AimSpeed(150.f)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -21,7 +23,7 @@ AKCharacterBase::AKCharacterBase(const FObjectInitializer& ObjectInitializer)
 	FRotator PivotRotation(0.f, -90.f, 0.f);
 	GetMesh()->SetRelativeLocationAndRotation(PivotPosition, PivotRotation);
 
-	GetCharacterMovement()->MaxWalkSpeed = 350.f;
+	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.35f;
@@ -133,16 +135,5 @@ void AKCharacterBase::Die()
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SetLifeSpan(1.f);
-
-}
-
-void AKCharacterBase::InputAttackMelee()
-{
-	if (GetCharacterMovement()->IsFalling()) return;
-
-	if (IsValid(CurrentWeapon))
-	{
-		CurrentWeapon->ExecuteAttack();
-	}
 
 }

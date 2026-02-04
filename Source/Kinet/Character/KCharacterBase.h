@@ -33,7 +33,6 @@ protected:
 		class AController* EventInstigator,
 		AActor* DamageCauser) override;
 	virtual void Die();
-	void InputAttackMelee();
 
 public:
 	FOnAttackNotifySignature OnAttackNotify;
@@ -47,11 +46,15 @@ protected:
 	TObjectPtr<UAnimMontage> DeathMontage;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI|HPBar")
 	TObjectPtr<UWidgetComponent> HPBarWidgetComp;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status")
+	UPROPERTY()
 	TObjectPtr<UKStatusComponent> StatusComp;
 	UPROPERTY()
 	TObjectPtr<UKAnimInstance> CharacterAnim;
 	UPROPERTY()
 	TObjectPtr<AKWeapon> CurrentWeapon;
+	UPROPERTY(EditAnywhere, Category = "Character|Speed")
+	float NormalSpeed;
+	UPROPERTY(EditAnywhere, Category = "Character|Speed")
+	float AimSpeed;
 
 };

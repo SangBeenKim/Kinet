@@ -26,6 +26,7 @@ public:
 	void EquipWeapon(AKCharacterBase* InCharacter);
 	void UnequipWeapon();
 	void DestroyWeapon(AKCharacterBase* InCharacter);
+	void ExecuteAttackRanged();
 
 protected:
 	virtual void BeginPlay() override;
@@ -64,6 +65,8 @@ protected:
 	TObjectPtr<UAnimMontage> AM_Attack;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AnimMontage")
 	TObjectPtr<UAnimMontage> AM_GetWeapon;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AnimMontage")
+	TObjectPtr<UAnimMontage> AM_AttackRanged;
 
 private:
 	UPROPERTY()

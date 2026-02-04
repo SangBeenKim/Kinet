@@ -91,6 +91,17 @@ void AKWeapon::DestroyWeapon(AKCharacterBase* InCharacter)
 	Destroy();
 }
 
+void AKWeapon::ExecuteAttackRanged()
+{
+	if (AKCharacterBase* OwnerCharacter = Cast<AKCharacterBase>(GetOwner()))
+	{
+		if (IsValid(AM_AttackRanged))
+		{
+			OwnerCharacter->PlayAnimMontage(AM_AttackRanged);
+		}
+	}
+}
+
 void AKWeapon::BeginPlay()
 {
 	Super::BeginPlay();

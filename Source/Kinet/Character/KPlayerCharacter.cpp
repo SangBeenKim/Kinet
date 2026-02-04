@@ -6,8 +6,10 @@
 #include "Kismet/KismetSystemLibrary.h" //LOG
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/OverlapResult.h"
-#include "Interfaces/Interactable.h"
 #include "Animation/KAnimInstance.h"
+#include "Components/KStatusComponent.h"
+#include "Items/KWeapon.h"
+//#include "Interfaces/Interactable.h"
 
 AKPlayerCharacter::AKPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.DoNotCreateDefaultSubobject(TEXT("HPBarWidgetComp")))
@@ -56,12 +58,27 @@ void AKPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EIC->BindAction(InputConfig->Look, ETriggerEvent::Triggered, this, &ThisClass::InputLook);
 		EIC->BindAction(InputConfig->Jump, ETriggerEvent::Started, this, &ThisClass::Jump);
 		EIC->BindAction(InputConfig->Jump, ETriggerEvent::Completed, this, &ThisClass::StopJumping);
-		EIC->BindAction(InputConfig->Attack_Melee, ETriggerEvent::Started, this, &ThisClass::InputAttackMelee);
+		EIC->BindAction(InputConfig->Attack_Melee, ETriggerEvent::Started, this, &ThisClass::InputAttack);
 		EIC->BindAction(InputConfig->Interact, ETriggerEvent::Started, this, &ThisClass::InputInteract);
+		EIC->BindAction(InputConfig->Aiming, ETriggerEvent::Started, this, &ThisClass::InputAiming);
+		EIC->BindAction(InputConfig->Aiming, ETriggerEvent::Completed, this, &ThisClass::StopAiming);
 		//Test
 		EIC->BindAction(InputConfig->Test, ETriggerEvent::Started, this, &ThisClass::InputTest);
 		//Test
 	}
+}
+
+bool AKPlayerCharacter::CanJumpInternal_Implementation() const
+{
+	bool bCanJump = Super::CanJumpInternal_Implementation();
+
+	if (StatusComp->bIsAiming == true)
+	{
+		bCanJump = false;
+	}
+
+	return bCanJump;
+
 }
 
 void AKPlayerCharacter::InputMove(const FInputActionValue& InValue)
@@ -86,6 +103,22 @@ void AKPlayerCharacter::InputLook(const FInputActionValue& InValue)
 
 	AddControllerYawInput(LookVector.X * Sensitivity);
 	AddControllerPitchInput(LookVector.Y * Sensitivity);
+}
+
+void AKPlayerCharacter::InputAttack()
+{
+	if (GetCharacterMovement()->IsFalling()) return;
+
+	if (!IsValid(CurrentWeapon)) return; // 기본 공격 추가시 함수 종료대신 그걸로 대체
+	
+	if (StatusComp->bIsAiming == true)
+	{
+		CurrentWeapon->ExecuteAttackRanged();
+	}
+	else
+	{
+		CurrentWeapon->ExecuteAttack();
+	}
 }
 
 void AKPlayerCharacter::InputInteract()
@@ -122,6 +155,47 @@ void AKPlayerCharacter::InputInteract()
 			}
 		}
 	}
+}
+
+void AKPlayerCharacter::InputAiming()
+{
+	if (GetCharacterMovement()->IsFalling()) return;
+
+	if (!IsValid(CurrentWeapon)) return;
+
+	SetCameraAimView(true);
+
+}
+
+void AKPlayerCharacter::StopAiming()
+{
+	SetCameraAimView(false);
+
+}
+
+void AKPlayerCharacter::SetCameraAimView(bool bIsAiming)
+{
+	if (bIsAiming)
+	{
+		StatusComp->bIsAiming = true;
+		bUseControllerRotationYaw = true;
+		SpringArmComp->TargetArmLength = 125.f;
+		SpringArmComp->SetRelativeLocation(FVector(0.f, 50.f, 70.f));
+		GetCharacterMovement()->MaxWalkSpeed = AimSpeed;
+	}
+	else
+	{
+		StatusComp->bIsAiming = false;
+		bUseControllerRotationPitch = false;
+		SpringArmComp->TargetArmLength = 400.f;
+		SpringArmComp->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+		GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
+	}
+
+	UKismetSystemLibrary::PrintString(
+		this,
+		FString::Printf(TEXT("bIsAiming : %s"), StatusComp->bIsAiming ? TEXT("True") : TEXT("False"))
+	); // LOG
 }
 
 void AKPlayerCharacter::InputTest()

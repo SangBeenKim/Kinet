@@ -1,6 +1,8 @@
 ﻿#include "Animation/KAnimInstance.h"
-#include "Character/KNonPlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Character/KNonPlayerCharacter.h"
+#include "Components/KStatusComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void UKAnimInstance::NativeInitializeAnimation()
 {
@@ -29,5 +31,11 @@ void UKAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		}
 
 		bIsFalling = OwnerCharacterMovement->IsFalling();
+
+		if (APlayerController* OwnerPlayerController = Cast<APlayerController>(OwnerCharacter->GetController()))
+		{
+			NormalizedCurrentPitch = UKismetMathLibrary::NormalizeAxis(OwnerPlayerController->GetControlRotation().Pitch);
+			bIsAiming = OwnerCharacter->GetStatusComponent()->bIsAiming;
+		}
 	}
 }

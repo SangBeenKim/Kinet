@@ -20,11 +20,16 @@ public:
 
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+	virtual bool CanJumpInternal_Implementation() const override;
 
 private:
 	void InputMove(const FInputActionValue& InValue);
 	void InputLook(const FInputActionValue& InValue);
+	void InputAttack();
 	void InputInteract();
+	void InputAiming();
+	void StopAiming();
+	void SetCameraAimView(bool bIsAiming);
 	void InputTest();
 	virtual void Die() override;
 

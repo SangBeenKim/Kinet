@@ -31,5 +31,9 @@ protected:
 	uint8 bIsFalling : 1;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	uint8 bIsDead : 1;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	uint8 bIsAiming : 1;
+	UPROPERTY(BlueprintReadOnly)
+	float NormalizedCurrentPitch;
 
 };
