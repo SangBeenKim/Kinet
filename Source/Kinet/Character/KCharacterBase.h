@@ -5,7 +5,9 @@
 #include "KCharacterBase.generated.h"
 
 class UAnimMontage;
+class UKAnimInstance;
 class UWidgetComponent;
+class AKWeapon;
 class UKStatusComponent;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnAttackNotifySignature, FName);
@@ -18,9 +20,11 @@ class KINET_API AKCharacterBase : public ACharacter
 public:
 	AKCharacterBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	UKStatusComponent* GetStatusComponent() const { return StatusComp; }
-	FOnAttackNotifySignature OnAttackNotify;
+	virtual void SetCurrentWeapon(AKWeapon* InWeapon);
+	void PlayAnimMontage(UAnimMontage* InMontage);
 
 protected:
+	virtual void OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted);
 	virtual void BeginPlay() override;
 	virtual float TakeDamage(
 		float DamageAmount,
@@ -29,8 +33,9 @@ protected:
 		AActor* DamageCauser) override;
 	virtual void Die();
 	void InputAttackMelee();
-	//Test
-	void TestAttack();
+
+public:
+	FOnAttackNotifySignature OnAttackNotify;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -43,5 +48,9 @@ protected:
 	TObjectPtr<UWidgetComponent> HPBarWidgetComp;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Status")
 	TObjectPtr<UKStatusComponent> StatusComp;
+	UPROPERTY()
+	TObjectPtr<UKAnimInstance> CharacterAnim;
+	UPROPERTY()
+	TObjectPtr<AKWeapon> CurrentWeapon;
 
 };

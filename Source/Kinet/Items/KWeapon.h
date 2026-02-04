@@ -6,7 +6,7 @@
 #include "KWeapon.generated.h"
 
 class USphereComponent;
-class AKPlayerCharacter;
+class AKCharacterBase;
 
 UCLASS()
 class KINET_API AKWeapon : public AActor, public IInteractable
@@ -22,7 +22,9 @@ public:
 	virtual FText GetInteractionActionText() override { return EquipWeaponText; }
 	// ~IInteractable
 
+	void ExecuteAttack();
 	virtual UAnimMontage* Attack();
+	void EquipWeapon(AKCharacterBase* InCharacter);
 
 protected:
 	virtual void BeginPlay() override;
@@ -59,9 +61,13 @@ protected:
 	TObjectPtr<USphereComponent> DetectPlayerCharacterComp;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AnimMontage")
 	TObjectPtr<UAnimMontage> AM_Attack;
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<AKPlayerCharacter> OwnerCharacter;
+	//UPROPERTY(VisibleAnywhere)
+	//TObjectPtr<AKPlayerCharacter> OwnerCharacter;
+
+private:
 	UPROPERTY()
 	TArray<AActor*> HitHistory;
+	FVector LastMuzzlePos;
+	FVector LastGripPos;
 
 };

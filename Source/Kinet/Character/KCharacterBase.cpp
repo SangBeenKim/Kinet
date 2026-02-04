@@ -6,6 +6,7 @@
 #include "Animation/KAnimInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/KStatusComponent.h"
+#include "Items/KWeapon.h"
 
 AKCharacterBase::AKCharacterBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -39,6 +40,41 @@ AKCharacterBase::AKCharacterBase(const FObjectInitializer& ObjectInitializer)
 	}
 }
 
+void AKCharacterBase::SetCurrentWeapon(AKWeapon* InWeapon)
+{
+	if (!IsValid(InWeapon) || CurrentWeapon == InWeapon) return;
+
+	if (IsValid(CurrentWeapon))
+	{
+		CurrentWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		CurrentWeapon->SetOwner(nullptr);
+	}
+
+	CurrentWeapon = InWeapon;
+}
+
+void AKCharacterBase::PlayAnimMontage(UAnimMontage* InMontage)
+{
+	if (IsValid(InMontage))
+	{
+		if (IsValid(CharacterAnim) && !CharacterAnim->Montage_IsPlaying(InMontage))
+		{
+			StatusComp->bIsActionLocked = true;
+			CharacterAnim->Montage_Play(InMontage);
+
+			FOnMontageEnded EndDelegate;
+			EndDelegate.BindUObject(this, &AKCharacterBase::OnMontageEnded);
+			CharacterAnim->Montage_SetEndDelegate(EndDelegate, InMontage);
+		}
+	}
+}
+
+void AKCharacterBase::OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted)
+{
+	StatusComp->bIsActionLocked = false;
+
+}
+
 float AKCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	float FinalDamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
@@ -51,10 +87,9 @@ float AKCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& Damage
 		return FinalDamageAmount;
 	}
 
-	UKAnimInstance* AnimInstance = Cast<UKAnimInstance>(GetMesh()->GetAnimInstance());
-	if (IsValid(AnimInstance) && IsValid(TakeDamageMontage) && !AnimInstance->Montage_IsPlaying(TakeDamageMontage))
+	if (IsValid(CharacterAnim) && IsValid(TakeDamageMontage) && !CharacterAnim->Montage_IsPlaying(TakeDamageMontage))
 	{
-		AnimInstance->Montage_Play(TakeDamageMontage);
+		CharacterAnim->Montage_Play(TakeDamageMontage);
 	}
 
 	return FinalDamageAmount;
@@ -76,15 +111,17 @@ void AKCharacterBase::BeginPlay()
 			}
 		}
 	}
-	
+
+	CharacterAnim = Cast<UKAnimInstance>(GetMesh()->GetAnimInstance());
+	checkf(IsValid(CharacterAnim), TEXT("[%s] AnimInstance is invalid."), *GetName());
+
 }
 
 void AKCharacterBase::Die()
 {
-	UKAnimInstance* AnimInstance = Cast<UKAnimInstance>(GetMesh()->GetAnimInstance());
-	if (IsValid(AnimInstance) && IsValid(DeathMontage) && !AnimInstance->Montage_IsPlaying(DeathMontage))
+	if (IsValid(CharacterAnim) && IsValid(DeathMontage) && !CharacterAnim->Montage_IsPlaying(DeathMontage))
 	{
-		AnimInstance->Montage_Play(DeathMontage);
+		CharacterAnim->Montage_Play(DeathMontage);
 	}
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -94,62 +131,11 @@ void AKCharacterBase::Die()
 
 void AKCharacterBase::InputAttackMelee()
 {
-	if (GetCharacterMovement()->IsFalling())
+	if (GetCharacterMovement()->IsFalling()) return;
+
+	if (IsValid(CurrentWeapon))
 	{
-		return;
+		CurrentWeapon->ExecuteAttack();
 	}
-	
-	UKAnimInstance* AnimInstance = Cast<UKAnimInstance>(GetMesh()->GetAnimInstance());
-	if (IsValid(AnimInstance) && IsValid(AttackMeleeMontage) && !AnimInstance->Montage_IsPlaying(AttackMeleeMontage))
-	{
-		AnimInstance->Montage_Play(AttackMeleeMontage);
-		TestAttack();
-	}
+
 }
-
-void AKCharacterBase::TestAttack()
-{
-	FVector ForwardVector = GetActorForwardVector();
-	FVector StartLocation = GetActorLocation() + (ForwardVector * 100.f); // 캐릭터 앞 100cm 지점
-	float AttackRadius = 50.f; // 구체 반지름
-
-	// 2. 충돌 검사 결과 및 무시할 대상 설정
-	TArray<FHitResult> HitResults;
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-
-	// 3. 스피어 트레이스 실행 (Pawn 채널 기준)
-	bool bHit = GetWorld()->SweepMultiByChannel(
-		HitResults,
-		StartLocation,
-		StartLocation, // 시작과 끝을 같게 하면 그 지점에 구체를 생성함
-		FQuat::Identity,
-		ECC_Pawn, // 기본 Pawn 채널 사용
-		FCollisionShape::MakeSphere(AttackRadius),
-		Params
-	);
-
-	// 디버그용 구체 그리기 (테스트용)
-	FColor DebugColor = bHit ? FColor::Green : FColor::Red;
-	DrawDebugSphere(GetWorld(), StartLocation, AttackRadius, 12, DebugColor, false, 1.f);
-
-	// 4. 대미지 전달
-	if (bHit)
-	{
-		for (const FHitResult& Hit : HitResults)
-		{
-			AActor* HitActor = Hit.GetActor();
-			if (HitActor)
-			{
-				UGameplayStatics::ApplyDamage(
-					HitActor,       // 대미지 받을 액터
-					10.f,           // 대미지 양
-					GetController(),// 공격자 컨트롤러
-					this,           // 공격 유발 액터
-					nullptr         // 대미지 타입 클래스
-				);
-			}
-		}
-	}
-}
-

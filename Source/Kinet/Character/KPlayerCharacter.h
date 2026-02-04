@@ -7,7 +7,6 @@
 class USpringArmComponent;
 class UCameraComponent;
 class UKInputConfig;
-class AKWeapon;
 struct FInputActionValue;
 
 UCLASS()
@@ -18,7 +17,6 @@ class KINET_API AKPlayerCharacter : public AKCharacterBase
 public:
 	AKPlayerCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	virtual void BeginPlay() override;
-	void SetCurrentWeapon(AKWeapon* InWeapon);
 
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
@@ -37,12 +35,11 @@ protected:
 	TObjectPtr<UCameraComponent> CameraComp;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UKInputConfig> InputConfig;
-	UPROPERTY(VisibleAnywhere, Category = "Weapon")
-	TObjectPtr<AKWeapon> CurrentWeapon;
 	UPROPERTY(EditAnywhere, Category = "InteractRange")
 	float InteractRange;
 	UPROPERTY(EditAnywhere, Category = "InteractRange")
 	float InteractRadius;
 	UPROPERTY(EditDefaultsOnly, Category = "AnimMontage")
 	TObjectPtr<UAnimMontage> GetPistol;
+	
 };

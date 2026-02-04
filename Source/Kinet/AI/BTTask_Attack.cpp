@@ -1,6 +1,7 @@
 ﻿#include "AI/BTTask_Attack.h"
 #include "Controller/KAIController.h"
 #include "Character/KNonPlayerCharacter.h"
+#include "Components/KStatusComponent.h"
 
 UBTTask_Attack::UBTTask_Attack()
 {
@@ -16,8 +17,8 @@ void UBTTask_Attack::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 
 	AKNonPlayerCharacter* NPC = Cast<AKNonPlayerCharacter>(AIController->GetPawn());
 	checkf(IsValid(NPC) == true, TEXT("Invalid NPC."));
-
-	if (NPC->bIsNowAttacking == false)
+	
+	if (NPC->GetStatusComponent()->bIsActionLocked == false)
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}

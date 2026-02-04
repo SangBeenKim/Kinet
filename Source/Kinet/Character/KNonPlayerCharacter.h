@@ -17,11 +17,15 @@ public:
 	virtual void BeginAttack();
 
 protected:
-	virtual void EndAttack(UAnimMontage* InMontage, bool bInterruped);
+	virtual void OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted) override;
 	virtual void Die() override;
 
 public:
 	bool bIsNowAttacking;
 	FOnAttackMontageEnded OnAttackMontageEndedDelegate;
+
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|Weapon")
+	TSubclassOf<AKWeapon> DefaultWeaponClass;
 
 };

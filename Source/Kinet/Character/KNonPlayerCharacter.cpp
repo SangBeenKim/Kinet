@@ -2,10 +2,11 @@
 #include "Controller/KAIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/KStatusComponent.h"
-#include "Kismet/GameplayStatics.h"
+//#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Character/KPlayerCharacter.h"
-#include "Animation/KAnimInstance.h"
+//#include "Character/KPlayerCharacter.h"
+//#include "Animation/KAnimInstance.h"
+#include "Items/KWeapon.h"
 
 AKNonPlayerCharacter::AKNonPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -22,6 +23,21 @@ void AKNonPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (IsValid(DefaultWeaponClass))
+	{
+		FActorSpawnParameters Params;
+		Params.Owner = this;
+		Params.Instigator = GetInstigator();
+
+		AKWeapon* SpawnedWeapon = GetWorld()->SpawnActor<AKWeapon>(DefaultWeaponClass, Params);
+		if (SpawnedWeapon)
+		{
+			SpawnedWeapon->SetActorHiddenInGame(true);
+			SpawnedWeapon->EquipWeapon(this);
+			SpawnedWeapon->SetActorHiddenInGame(false);
+		}
+	}
+
 	if (false == IsPlayerControlled())
 	{
 		bUseControllerRotationYaw = false;
@@ -37,37 +53,23 @@ void AKNonPlayerCharacter::BeginPlay()
 
 void AKNonPlayerCharacter::BeginAttack()
 {
-	UKAnimInstance* AnimInstance = Cast<UKAnimInstance>(GetMesh()->GetAnimInstance());
-	checkf(IsValid(AnimInstance) == true, TEXT("Invalid AnimInstance"));
+	if (!IsValid(CurrentWeapon)) return;
 
+	bIsNowAttacking = true;
+	StatusComp->bIsActionLocked = true;
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-	if (IsValid(AnimInstance) && IsValid(AttackMeleeMontage) && AnimInstance->Montage_IsPlaying(AttackMeleeMontage) == false)
+
+	if (IsValid(CurrentWeapon))
 	{
-		AnimInstance->Montage_Play(AttackMeleeMontage);
-
-		bIsNowAttacking = true;
-
-		TestAttack();
-
-		if (OnAttackMontageEndedDelegate.IsBound() == false)
-		{
-			OnAttackMontageEndedDelegate.BindUObject(this, &AKNonPlayerCharacter::EndAttack);
-			AnimInstance->Montage_SetEndDelegate(OnAttackMontageEndedDelegate, AttackMeleeMontage);
-		}
-
+		CurrentWeapon->ExecuteAttack();
 	}
+
 }
 
-void AKNonPlayerCharacter::EndAttack(UAnimMontage* InMontage, bool bInterruped)
+void AKNonPlayerCharacter::OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted)
 {
+	StatusComp->bIsActionLocked = false;
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
-
-	bIsNowAttacking = false;
-
-	if (OnAttackMontageEndedDelegate.IsBound() == true)
-	{
-		OnAttackMontageEndedDelegate.Unbind();
-	}
 }
 
 void AKNonPlayerCharacter::Die()

@@ -6,7 +6,6 @@
 #include "Kismet/KismetSystemLibrary.h" //LOG
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/OverlapResult.h"
-#include "Items/KWeapon.h"
 #include "Interfaces/Interactable.h"
 #include "Animation/KAnimInstance.h"
 
@@ -44,19 +43,6 @@ void AKPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-}
-
-void AKPlayerCharacter::SetCurrentWeapon(AKWeapon* InWeapon)
-{
-	if (!IsValid(InWeapon) || CurrentWeapon == InWeapon) return;
-
-	if (IsValid(CurrentWeapon))
-	{
-		CurrentWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		CurrentWeapon->SetOwner(nullptr);
-	}
-
-	CurrentWeapon = InWeapon;
 }
 
 void AKPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -145,17 +131,16 @@ void AKPlayerCharacter::InputInteract()
 
 void AKPlayerCharacter::InputTest()
 {
-	if (!IsValid(CurrentWeapon)) return;
+	//if (!IsValid(CurrentWeapon)) return;
 
-	UAnimMontage* AttackMontage = CurrentWeapon->Attack();
-	if (IsValid(AttackMontage))
-	{
-		UKAnimInstance* AnimInstance = Cast<UKAnimInstance>(GetMesh()->GetAnimInstance());
-		if (IsValid(AnimInstance) && !AnimInstance->Montage_IsPlaying(AttackMontage))
-		{
-			AnimInstance->Montage_Play(AttackMontage);
-		}
-	}
+	//UAnimMontage* AttackMontage = CurrentWeapon->Attack();
+	//if (IsValid(AttackMontage))
+	//{
+	//	if (IsValid(CharacterAnim) && !CharacterAnim->Montage_IsPlaying(AttackMontage))
+	//	{
+	//		CharacterAnim->Montage_Play(AttackMontage);
+	//	}
+	//}
 }
 
 void AKPlayerCharacter::Die()

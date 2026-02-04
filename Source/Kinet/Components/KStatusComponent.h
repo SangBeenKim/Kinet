@@ -23,6 +23,10 @@ public:
 	void SetCurrentHP(float InCurrentHP);
 	void SetMaxHP(float InMaxHP);
 	bool IsDead() const { return bIsDead; }
+	
+public:
+	UPROPERTY(Transient)
+	uint8 bIsActionLocked : 1;
 
 private:
 	FOnUpdatedHealth OnUpdatedHealth;

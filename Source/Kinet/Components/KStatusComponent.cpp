@@ -4,6 +4,7 @@ UKStatusComponent::UKStatusComponent()
 	: MaxHP(100.f)
 	, CurrentHP(100.f)
 	, bIsDead(false)
+	, bIsActionLocked(false)
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
