@@ -31,7 +31,7 @@ void UKHUD::ShowPauseMenu()
 	}
 }
 
-void UKHUD::ClosePauseMenu()
+void UKHUD::HidePauseMenu()
 {
 	if (IsValid(HUD_PauseMenu))
 	{

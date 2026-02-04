@@ -70,7 +70,7 @@ void AKPlayerController::TogglePauseMenu()
 	
 	if (IsValid(HUDInstance))
 	{
-		bNewPauseState ? HUDInstance->ShowPauseMenu() : HUDInstance->ClosePauseMenu();
+		bNewPauseState ? HUDInstance->ShowPauseMenu() : HUDInstance->HidePauseMenu();
 
 		if (bNewPauseState)
 		{

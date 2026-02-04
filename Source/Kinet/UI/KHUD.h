@@ -17,7 +17,7 @@ public:
 	virtual void NativeConstruct() override;
 	void InitializeHUD(IHealthInterface* InOwner);
 	void ShowPauseMenu();
-	void ClosePauseMenu();
+	void HidePauseMenu();
 
 
 	UPROPERTY(meta = (BindWidget))
