@@ -17,9 +17,5 @@ class KINET_API IInteractable
 public:
 	// 상호 작용 실행
 	virtual void Interact(AActor* Interactor) = 0;
-	// UI 에 표시할 이름 (ex. "검", "상자")
-	virtual FText GetInteractionName() = 0;
-	// UI 에 표시할 행동 이름 (ex. "줍기", "열기")
-	virtual FText GetInteractionActionText() = 0;
 
 };
