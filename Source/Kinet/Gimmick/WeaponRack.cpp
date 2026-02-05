@@ -34,7 +34,7 @@ void AWeaponRack::Interact(AActor* Interactor)
 		Params.Instigator = PlayerCharacter->GetInstigator();
 
 		AKWeapon* SpawnedWeapon = GetWorld()->SpawnActor<AKWeapon>(WeaponClass, Params);
-		if (SpawnedWeapon)
+		if (SpawnedWeapon) // 캐릭터가 이미 무기를 들고 있을 경우에 예외처리가 필요함
 		{
 			SpawnedWeapon->SetActorHiddenInGame(true);
 			SpawnedWeapon->EquipWeapon(PlayerCharacter);
@@ -63,11 +63,20 @@ void AWeaponRack::BeginPlay()
 void AWeaponRack::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	// UI 표시
-	InteractWidgetComp->SetVisibility(true);
+	AKPlayerCharacter* Player = Cast<AKPlayerCharacter>(OtherActor);
+	if (IsValid(Player))
+	{
+		InteractWidgetComp->SetVisibility(true);
+	}
+	
 }
 
 void AWeaponRack::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	// UI 숨김
-	InteractWidgetComp->SetVisibility(false);
+	AKPlayerCharacter* Player = Cast<AKPlayerCharacter>(OtherActor);
+	if (IsValid(Player))
+	{
+		InteractWidgetComp->SetVisibility(false);
+	}
 }
