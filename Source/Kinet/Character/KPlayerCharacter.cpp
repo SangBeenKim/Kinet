@@ -15,6 +15,11 @@ AKPlayerCharacter::AKPlayerCharacter(const FObjectInitializer& ObjectInitializer
 	: Super(ObjectInitializer.DoNotCreateDefaultSubobject(TEXT("HPBarWidgetComp")))
 	, InteractRange(150.f)
 	, InteractRadius(100.f)
+	, DefaultLength(400.f)
+	, AimLength(125.f)
+	, AimCameraPos(FVector(0.f,50.f,70.f))
+	, DefaultFOV(90.f)
+	, AimFOV(70.f)
 {
 	PrimaryActorTick.bCanEverTick = false;
 
@@ -28,17 +33,19 @@ AKPlayerCharacter::AKPlayerCharacter(const FObjectInitializer& ObjectInitializer
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 	SpringArmComp->SetupAttachment(RootComponent);
-	SpringArmComp->TargetArmLength = 400.f;
+	SpringArmComp->TargetArmLength = DefaultLength;//400.f;
 	SpringArmComp->bUsePawnControlRotation = true;
 	SpringArmComp->bInheritYaw = true;
 	SpringArmComp->bInheritPitch = true;
 	SpringArmComp->bInheritRoll = false;
 	SpringArmComp->bDoCollisionTest = true;
+	SpringArmComp->bEnableCameraLag = true;
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(SpringArmComp);
 	CameraComp->bUsePawnControlRotation = false;
-	
+	CameraComp->FieldOfView = DefaultFOV;
+
 }
 
 void AKPlayerCharacter::BeginPlay()
@@ -185,17 +192,19 @@ void AKPlayerCharacter::SetCameraAimView(bool bIsAiming)
 	{
 		StatusComp->bIsAiming = true;
 		bUseControllerRotationYaw = true;
-		SpringArmComp->TargetArmLength = 125.f;
-		SpringArmComp->SetRelativeLocation(FVector(0.f, 50.f, 70.f));
+		SpringArmComp->TargetArmLength = AimLength;//125.f;
+		SpringArmComp->SetRelativeLocation(AimCameraPos/*FVector(0.f, 50.f, 70.f)*/);
 		GetCharacterMovement()->MaxWalkSpeed = AimSpeed;
+		CameraComp->FieldOfView = AimFOV;
 	}
 	else
 	{
 		StatusComp->bIsAiming = false;
 		bUseControllerRotationYaw = false;
-		SpringArmComp->TargetArmLength = 400.f;
-		SpringArmComp->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+		SpringArmComp->TargetArmLength = DefaultLength;//400.f;
+		SpringArmComp->SetRelativeLocation(FVector::ZeroVector);
 		GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
+		CameraComp->FieldOfView = DefaultFOV;
 	}
 
 	UKismetSystemLibrary::PrintString(

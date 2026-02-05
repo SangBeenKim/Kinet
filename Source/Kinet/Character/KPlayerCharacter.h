@@ -40,17 +40,26 @@ public:
 	FOnCombatModeChanged OnCombatModeChanged;
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpringArm")
+	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USpringArmComponent> SpringArmComp;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera")
+	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCameraComponent> CameraComp;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UPROPERTY(EditDefaultsOnly, Category = "UserCustomize|Input")
 	TObjectPtr<UKInputConfig> InputConfig;
-	UPROPERTY(EditAnywhere, Category = "InteractRange")
+	UPROPERTY(EditAnywhere, Category = "UserCustomize|InteractRange")
 	float InteractRange;
-	UPROPERTY(EditAnywhere, Category = "InteractRange")
+	UPROPERTY(EditAnywhere, Category = "UserCustomize|InteractRange")
 	float InteractRadius;
-	UPROPERTY(EditDefaultsOnly, Category = "Effect")
+	UPROPERTY(EditDefaultsOnly, Category = "UserCustomize|Effect")
 	TSubclassOf<UCameraShakeBase> AttackRangedCameraShake;
-	
+	UPROPERTY(EditAnywhere, Category = "UserCustomize|Camera")
+	FVector AimCameraPos;
+	UPROPERTY(EditAnywhere, Category = "UserCustomize|Camera")
+	float DefaultLength;
+	UPROPERTY(EditAnywhere, Category = "UserCustomize|Camera")
+	float AimLength;
+	UPROPERTY(EditAnywhere, Category = "UserCustomize|Camera")
+	float DefaultFOV;
+	UPROPERTY(EditAnywhere, Category = "UserCustomize|Camera")
+	float AimFOV;
 };
