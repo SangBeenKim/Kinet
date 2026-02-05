@@ -35,6 +35,7 @@ protected:
 	void ResetHitHistory();
 
 private:
+	void TryFire();
 	UFUNCTION()
 	void OnOverlapBegin(
 		UPrimitiveComponent* OverlappedComp,
@@ -67,6 +68,8 @@ protected:
 	TObjectPtr<UAnimMontage> AM_GetWeapon;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AnimMontage")
 	TObjectPtr<UAnimMontage> AM_AttackRanged;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Meta = (Units = cm))
+	float MaxAttackRange = 25000.f;
 
 private:
 	UPROPERTY()
@@ -74,4 +77,6 @@ private:
 	FVector LastMuzzlePos;
 	FVector LastGripPos;
 
+public:
+	static int32 ShowAttackRangedDebug; // 디버그
 };

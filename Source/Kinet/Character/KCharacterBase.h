@@ -23,15 +23,15 @@ public:
 	virtual void SetCurrentWeapon(AKWeapon* InWeapon);
 	AKWeapon* GetCurrentWeapon() const { return CurrentWeapon; }
 	void PlayAnimMontage(UAnimMontage* InMontage);
-
-protected:
-	virtual void OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted);
-	virtual void BeginPlay() override;
 	virtual float TakeDamage(
 		float DamageAmount,
 		struct FDamageEvent const& DamageEvent,
 		class AController* EventInstigator,
 		AActor* DamageCauser) override;
+
+protected:
+	virtual void OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted);
+	virtual void BeginPlay() override;
 	virtual void Die();
 
 public:

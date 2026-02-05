@@ -192,7 +192,7 @@ void AKPlayerCharacter::SetCameraAimView(bool bIsAiming)
 	else
 	{
 		StatusComp->bIsAiming = false;
-		bUseControllerRotationPitch = false;
+		bUseControllerRotationYaw = false;
 		SpringArmComp->TargetArmLength = 400.f;
 		SpringArmComp->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
 		GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;

@@ -3,6 +3,16 @@
 #include "Components/SphereComponent.h"
 #include "Character/KCharacterBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/DamageEvents.h"
+
+int32 AKWeapon::ShowAttackRangedDebug = 0;
+
+FAutoConsoleVariableRef CVarShowAttackRangedDebug(
+	TEXT("Kinet.ShowAttackRangedDebug"),
+	AKWeapon::ShowAttackRangedDebug,
+	TEXT(""),
+	ECVF_Cheat
+);
 
 AKWeapon::AKWeapon()
 {
@@ -98,6 +108,7 @@ void AKWeapon::ExecuteAttackRanged()
 		if (IsValid(AM_AttackRanged))
 		{
 			OwnerCharacter->PlayAnimMontage(AM_AttackRanged);
+			TryFire();
 		}
 	}
 }
@@ -201,6 +212,98 @@ void AKWeapon::CreateHitTrace()
 void AKWeapon::ResetHitHistory()
 {
 	HitHistory.Empty();
+}
+
+void AKWeapon::TryFire()
+{
+	AKCharacterBase* PlayerCharacter = Cast<AKCharacterBase>(GetOwner());
+	APlayerController* PlayerController = Cast<APlayerController>(PlayerCharacter->GetController());
+	if (IsValid(PlayerController) == true)
+	{
+		float FocalDistance = 400.f;
+		FVector FocalLocation;
+		FVector CameraLocation;
+		FRotator CameraRotation;
+
+		PlayerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
+
+		FVector AimDirectionFromCamera = CameraRotation.Vector().GetSafeNormal();
+		FocalLocation = CameraLocation + (AimDirectionFromCamera * FocalDistance);
+
+		FVector WeaponMuzzleLocation = StaticMeshComp->GetSocketLocation(TEXT("S_Muzzle"));
+		FVector FinalFocalLocation = FocalLocation + (((WeaponMuzzleLocation - FocalLocation) | AimDirectionFromCamera) * AimDirectionFromCamera);
+
+		FTransform TargetTransform = FTransform(CameraRotation, FinalFocalLocation);
+
+		if (1 == ShowAttackRangedDebug)
+		{
+			DrawDebugSphere(GetWorld(), WeaponMuzzleLocation, 2.f, 16, FColor::Red, false, 60.f);
+
+			DrawDebugSphere(GetWorld(), CameraLocation, 2.f, 16, FColor::Yellow, false, 60.f);
+
+			DrawDebugSphere(GetWorld(), FinalFocalLocation, 2.f, 16, FColor::Magenta, false, 60.f);
+
+			// (WeaponLoc - FocalLoc)
+			DrawDebugLine(GetWorld(), FocalLocation, WeaponMuzzleLocation, FColor::Yellow, false, 60.f, 0, 2.f);
+
+			// AimDir
+			DrawDebugLine(GetWorld(), CameraLocation, FinalFocalLocation, FColor::Blue, false, 60.f, 0, 2.f);
+
+			// Project Direction Line
+			DrawDebugLine(GetWorld(), WeaponMuzzleLocation, FinalFocalLocation, FColor::Red, false, 60.f, 0, 2.f);
+		}
+
+		FVector BulletDirection = TargetTransform.GetUnitAxis(EAxis::X);
+		FVector StartLocation = WeaponMuzzleLocation;
+		FVector EndLocation = TargetTransform.GetLocation() + BulletDirection * MaxAttackRange;
+
+		FHitResult HitResult;
+		FCollisionQueryParams TraceParams(NAME_None, false, this);
+		TraceParams.AddIgnoredActor(this);
+		TraceParams.AddIgnoredActor(PlayerCharacter);
+
+		bool bHit = GetWorld()->LineTraceSingleByChannel(
+			HitResult, 
+			StartLocation, 
+			EndLocation, 
+			ECC_Pawn, // 콜리전 채널
+			TraceParams
+		);
+
+		if (bHit == false)
+		{
+			HitResult.TraceStart = StartLocation;
+			HitResult.TraceEnd = EndLocation;
+		}
+
+		if (2 == ShowAttackRangedDebug)
+		{
+			if (bHit == true)
+			{
+				DrawDebugSphere(GetWorld(), StartLocation, 2.f, 16, FColor::Red, false, 60.f);
+				DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 2.f, 16, FColor::Green, false, 60.f);
+				DrawDebugLine(GetWorld(), StartLocation, HitResult.ImpactPoint, FColor::Blue, false, 60.f, 0, 2.f);
+			}
+			else
+			{
+				DrawDebugSphere(GetWorld(), StartLocation, 2.f, 16, FColor::Red, false, 60.f);
+				DrawDebugSphere(GetWorld(), EndLocation, 2.f, 16, FColor::Green, false, 60.f);
+				DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Blue, false, 60.f, 0, 2.f);
+			}
+		}
+
+		if (bHit == true)
+		{
+			AKCharacterBase* HittedCharacter = Cast<AKCharacterBase>(HitResult.GetActor());
+			if (IsValid(HittedCharacter))
+			{
+				FDamageEvent DamageEvent;
+				HittedCharacter->TakeDamage(10.f, DamageEvent, PlayerController, this);
+			}
+		}
+	}
+
+
 }
 
 void AKWeapon::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
