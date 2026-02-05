@@ -280,12 +280,19 @@ void AKWeapon::TryFire()
 
 		if (bHit == true)
 		{
-			AKCharacterBase* HittedCharacter = Cast<AKCharacterBase>(HitResult.GetActor());
+			UGameplayStatics::ApplyDamage(
+				HitResult.GetActor(),						// 대미지 받을 액터
+				10.f,										// 대미지 양
+				GetOwner()->GetInstigatorController(),		// 공격자 컨트롤러
+				GetOwner(),									// 공격 유발 액터
+				nullptr										// 대미지 타입 클래스
+			);
+			/*AKCharacterBase* HittedCharacter = Cast<AKCharacterBase>(HitResult.GetActor());
 			if (IsValid(HittedCharacter))
 			{
 				FDamageEvent DamageEvent;
 				HittedCharacter->TakeDamage(10.f, DamageEvent, PlayerController, this);
-			}
+			}*/
 		}
 	}
 
