@@ -114,6 +114,12 @@ void AKPlayerCharacter::InputAttack()
 	if (StatusComp->bIsAiming == true)
 	{
 		CurrentWeapon->ExecuteAttackRanged();
+		
+		APlayerController* OwnerPlayerController = Cast<APlayerController>(GetController());
+		if (IsValid(AttackRangedCameraShake) && IsValid(OwnerPlayerController))
+		{
+			OwnerPlayerController->ClientStartCameraShake(AttackRangedCameraShake);
+		}
 	}
 	else
 	{
@@ -164,13 +170,13 @@ void AKPlayerCharacter::InputAiming()
 	if (!IsValid(CurrentWeapon)) return;
 
 	SetCameraAimView(true);
-
+	OnCombatModeChanged.Broadcast(true);
 }
 
 void AKPlayerCharacter::StopAiming()
 {
 	SetCameraAimView(false);
-
+	OnCombatModeChanged.Broadcast(false);
 }
 
 void AKPlayerCharacter::SetCameraAimView(bool bIsAiming)

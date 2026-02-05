@@ -4,7 +4,7 @@
 #include "Game/KGameInstance.h"
 #include "UI/PauseMenu.h" // <- 의존성 분리 예정
 #include "UI/KHUD.h"
-#include "Character/KCharacterBase.h"
+#include "Character/KPlayerCharacter.h"
 #include "Components/KStatusComponent.h"
 
 void AKPlayerController::BeginPlay()
@@ -52,12 +52,14 @@ void AKPlayerController::OnPossess(APawn* InPawn)
 
 	CreateHUD();
 
-	AKCharacterBase* PlayerCharacter = Cast<AKCharacterBase>(InPawn);
+	AKPlayerCharacter* PlayerCharacter = Cast<AKPlayerCharacter>(InPawn);
 	if (IsValid(PlayerCharacter))
 	{
 		if (IsValid(HUDInstance))
 		{
 			HUDInstance->InitializeHUD(PlayerCharacter->GetStatusComponent());
+			PlayerCharacter->OnCombatModeChanged.RemoveAll(HUDInstance);
+			PlayerCharacter->OnCombatModeChanged.AddUObject(HUDInstance, &UKHUD::SetCrosshairVisible);
 		}
 	}
 }
@@ -70,7 +72,7 @@ void AKPlayerController::TogglePauseMenu()
 	
 	if (IsValid(HUDInstance))
 	{
-		bNewPauseState ? HUDInstance->ShowPauseMenu() : HUDInstance->HidePauseMenu();
+		HUDInstance->SetPauseMenuVisible(bNewPauseState);
 
 		if (bNewPauseState)
 		{

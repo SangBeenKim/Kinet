@@ -7,7 +7,10 @@
 class USpringArmComponent;
 class UCameraComponent;
 class UKInputConfig;
+class UCameraShakeBase;
 struct FInputActionValue;
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnCombatModeChanged, bool);
 
 UCLASS()
 class KINET_API AKPlayerCharacter : public AKCharacterBase
@@ -33,6 +36,9 @@ private:
 	void InputTest();
 	virtual void Die() override;
 
+public:
+	FOnCombatModeChanged OnCombatModeChanged;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpringArm")
 	TObjectPtr<USpringArmComponent> SpringArmComp;
@@ -44,5 +50,7 @@ protected:
 	float InteractRange;
 	UPROPERTY(EditAnywhere, Category = "InteractRange")
 	float InteractRadius;
+	UPROPERTY(EditDefaultsOnly, Category = "Effect")
+	TSubclassOf<UCameraShakeBase> AttackRangedCameraShake;
 	
 };
