@@ -4,11 +4,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/DamageEvents.h"
 
-int32 AKWeapon::ShowAttackRangedDebug = 0;
+int32 AKWeapon::ShowWeaponDebug = 0;
 
-FAutoConsoleVariableRef CVarShowAttackRangedDebug(
-	TEXT("Kinet.ShowAttackRangedDebug"),
-	AKWeapon::ShowAttackRangedDebug,
+FAutoConsoleVariableRef CVarShowWeaponDebug(
+	TEXT("Kinet.ShowWeaponDebug"),
+	AKWeapon::ShowWeaponDebug,
 	TEXT(""),
 	ECVF_Cheat
 );
@@ -19,19 +19,6 @@ AKWeapon::AKWeapon()
 
 	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComp"));
 	SetRootComponent(StaticMeshComp);
-
-}
-
-void AKWeapon::Interact(AActor* Interactor)
-{
-	if (Owner != nullptr) return;
-
-	if (AKCharacterBase* OwnerCharacter = Cast<AKCharacterBase>(Interactor))
-	{
-		SetOwner(OwnerCharacter);
-		SetInstigator(OwnerCharacter);
-		EquipWeapon(OwnerCharacter);
-	}
 
 }
 
@@ -181,17 +168,19 @@ void AKWeapon::CreateHitTrace()
 
 	LastMuzzlePos = CurrentMuzzlePos;
 	LastGripPos = CurrentGripPos;
-
-	// 실시간 확인용 디버그
-	DrawDebugCapsule(
-		GetWorld(),
-		(LastCenter + CurrentCenter) * 0.5f,								// 캡슐의 중심점
-		(CurrentCenter - LastCenter).Size() * 0.5f + HalfHeight,			// 캡슐의 절반 높이 (두 지점 거리 + 반지름)
-		SphereRadius,														// 반지름
-		FRotationMatrix::MakeFromZ(CurrentCenter - LastCenter).ToQuat(),	// 캡슐의 방향
-		FColor::Green, false, 0.1f
-	); /**/
-
+	
+	if (ShowWeaponDebug >= 1)
+	{
+		// 디버그 옵션
+		DrawDebugCapsule(
+			GetWorld(),
+			(LastCenter + CurrentCenter) * 0.5f,								// 캡슐의 중심점
+			(CurrentCenter - LastCenter).Size() * 0.5f + HalfHeight,			// 캡슐의 절반 높이 (두 지점 거리 + 반지름)
+			SphereRadius,														// 반지름
+			FRotationMatrix::MakeFromZ(CurrentCenter - LastCenter).ToQuat(),	// 캡슐의 방향
+			FColor::Green, false, 0.1f
+		); /**/
+	}
 }
 
 void AKWeapon::ResetHitHistory()
@@ -221,21 +210,13 @@ void AKWeapon::TryFire()
 
 		FTransform TargetTransform = FTransform(CameraRotation, FinalFocalLocation);
 
-		if (1 == ShowAttackRangedDebug)
+		if (1 == ShowWeaponDebug)
 		{
 			DrawDebugSphere(GetWorld(), WeaponMuzzleLocation, 2.f, 16, FColor::Red, false, 60.f);
-
 			DrawDebugSphere(GetWorld(), CameraLocation, 2.f, 16, FColor::Yellow, false, 60.f);
-
 			DrawDebugSphere(GetWorld(), FinalFocalLocation, 2.f, 16, FColor::Magenta, false, 60.f);
-
-			// (WeaponLoc - FocalLoc)
 			DrawDebugLine(GetWorld(), FocalLocation, WeaponMuzzleLocation, FColor::Yellow, false, 60.f, 0, 2.f);
-
-			// AimDir
 			DrawDebugLine(GetWorld(), CameraLocation, FinalFocalLocation, FColor::Blue, false, 60.f, 0, 2.f);
-
-			// Project Direction Line
 			DrawDebugLine(GetWorld(), WeaponMuzzleLocation, FinalFocalLocation, FColor::Red, false, 60.f, 0, 2.f);
 		}
 
@@ -262,7 +243,7 @@ void AKWeapon::TryFire()
 			HitResult.TraceEnd = EndLocation;
 		}
 
-		if (2 == ShowAttackRangedDebug)
+		if (2 == ShowWeaponDebug)
 		{
 			if (bHit == true)
 			{

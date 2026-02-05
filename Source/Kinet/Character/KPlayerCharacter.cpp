@@ -9,7 +9,16 @@
 #include "Animation/KAnimInstance.h"
 #include "Components/KStatusComponent.h"
 #include "Items/KWeapon.h"
-//#include "Interfaces/Interactable.h"
+#include "Interfaces/Interactable.h"
+
+bool AKPlayerCharacter::bShowPlayerCharacterDebug = false;
+
+FAutoConsoleVariableRef CVarShowPlayerCharacterDebug(
+	TEXT("Kinet.ShowPlayerCharacterDebug"),
+	AKPlayerCharacter::bShowPlayerCharacterDebug,
+	TEXT(""),
+	ECVF_Cheat
+);
 
 AKPlayerCharacter::AKPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.DoNotCreateDefaultSubobject(TEXT("HPBarWidgetComp")))
@@ -153,8 +162,6 @@ void AKPlayerCharacter::InputInteract()
 		Sphere,
 		Params
 	);
-	// 디버그 드로잉
-	DrawDebugSphere(GetWorld(), SphereCenter, InteractRadius, 12, FColor::Green, false, 2.0f);
 
 	if (bHit)
 	{
@@ -168,6 +175,13 @@ void AKPlayerCharacter::InputInteract()
 			}
 		}
 	}
+
+	if (bShowPlayerCharacterDebug)
+	{
+		// 디버그 드로잉
+		DrawDebugSphere(GetWorld(), SphereCenter, InteractRadius, 12, FColor::Green, false, 2.0f);
+	}
+
 }
 
 void AKPlayerCharacter::InputAiming()
@@ -207,10 +221,13 @@ void AKPlayerCharacter::SetCameraAimView(bool bIsAiming)
 		CameraComp->FieldOfView = DefaultFOV;
 	}
 
-	UKismetSystemLibrary::PrintString(
-		this,
-		FString::Printf(TEXT("bIsAiming : %s"), StatusComp->bIsAiming ? TEXT("True") : TEXT("False"))
-	); // LOG
+	if (bShowPlayerCharacterDebug)
+	{
+		UKismetSystemLibrary::PrintString(
+			this,
+			FString::Printf(TEXT("bIsAiming : %s"), StatusComp->bIsAiming ? TEXT("True") : TEXT("False"))
+		); // LOG
+	}
 }
 
 void AKPlayerCharacter::InputTest()

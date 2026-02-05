@@ -2,21 +2,17 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Interfaces/Interactable.h"
 #include "KWeapon.generated.h"
 
 class AKCharacterBase;
 
 UCLASS()
-class KINET_API AKWeapon : public AActor, public IInteractable
+class KINET_API AKWeapon : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	AKWeapon();
-	// ~IInteractable
-	virtual void Interact(AActor* Interactor) override;
-	// ~IInteractable
 	void ExecuteAttack();
 	void EquipWeapon(AKCharacterBase* InCharacter);
 	void UnequipWeapon();
@@ -51,5 +47,5 @@ private:
 	FVector LastGripPos;
 
 public:
-	static int32 ShowAttackRangedDebug; // 디버그
+	static int32 ShowWeaponDebug; // 디버그
 };

@@ -46,7 +46,7 @@ void UBTService_DetectPlayerCharacter::TickNode(UBehaviorTreeComponent& OwnerCom
 						{
 							OwnerComp.GetBlackboardComponent()->SetValueAsObject(AKAIController::TargetCharacterKey, PC);
 
-							if (AKAIController::ShowAIDebug == 1)
+							if (AKAIController::bShowAIDebug)
 							{
 								UKismetSystemLibrary::PrintString(
 									this,
@@ -63,7 +63,7 @@ void UBTService_DetectPlayerCharacter::TickNode(UBehaviorTreeComponent& OwnerCom
 						{
 							OwnerComp.GetBlackboardComponent()->SetValueAsObject(AKAIController::TargetCharacterKey, nullptr);
 
-							if (AKAIController::ShowAIDebug == 1)
+							if (AKAIController::bShowAIDebug)
 							{
 								DrawDebugSphere(World, CenterPosition, DetectRadius, 16, FColor::Green, false, 0.5f);
 							}
@@ -75,7 +75,7 @@ void UBTService_DetectPlayerCharacter::TickNode(UBehaviorTreeComponent& OwnerCom
 					OwnerComp.GetBlackboardComponent()->SetValueAsObject(AKAIController::TargetCharacterKey, nullptr);
 				}
 
-				if (AKAIController::ShowAIDebug == 1)
+				if (AKAIController::bShowAIDebug)
 				{
 					DrawDebugSphere(World, CenterPosition, DetectRadius, 16, FColor::Green, false, 0.5f);
 				}

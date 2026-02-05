@@ -2,7 +2,7 @@
 #include "Particles/ParticleSystem.h"
 #include "Kismet/GameplayStatics.h"
 
-int32 AExplosiveBarrel::bShowDebugExplosion = 0;
+bool AExplosiveBarrel::bShowDebugExplosion = false;
 
 FAutoConsoleVariableRef CVarShowExplosionDebug(
 	TEXT("Kinet.ShowExplosionDebug"),

@@ -38,5 +38,5 @@ protected:
 	
 	
 public:
-	static int32 bShowDebugExplosion; // 디버그
+	static bool bShowDebugExplosion; // 디버그
 };

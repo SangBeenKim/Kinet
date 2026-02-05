@@ -7,14 +7,15 @@
 #include "Kismet/KismetSystemLibrary.h" // LOG
 
 const float AKAIController::PatrolRadius(500.f);
-int32 AKAIController::ShowAIDebug(0);
 const FName AKAIController::StartPatrolPositionKey(TEXT("StartPatrolPosition"));
 const FName AKAIController::EndPatrolPositionKey(TEXT("EndPatrolPosition"));
 const FName AKAIController::TargetCharacterKey(TEXT("TargetCharacter"));
 
+bool AKAIController::bShowAIDebug = false;
+
 FAutoConsoleVariableRef CVarShowAIDebug(
 	TEXT("Kinet.ShowAIDebug"),
-	AKAIController::ShowAIDebug,
+	AKAIController::bShowAIDebug,
 	TEXT(""),
 	ECVF_Cheat
 );
@@ -56,7 +57,7 @@ void AKAIController::BeginAI(APawn* InPawn)
 
 			BlackboardComponent->SetValueAsVector(StartPatrolPositionKey, InPawn->GetActorLocation());
 
-			if (ShowAIDebug == 1)
+			if (bShowAIDebug)
 			{
 				UKismetSystemLibrary::PrintString(
 					this,
@@ -75,7 +76,7 @@ void AKAIController::EndAI()
 	{
 		BehaviorTreeComponent->StopTree();
 
-		if (ShowAIDebug == 1)
+		if (bShowAIDebug)
 		{
 			UKismetSystemLibrary::PrintString(
 				this,

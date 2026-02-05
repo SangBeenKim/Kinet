@@ -28,7 +28,6 @@ public:
 	static const FName StartPatrolPositionKey;
 	static const FName EndPatrolPositionKey;
 	static const FName TargetCharacterKey;
-	static int32 ShowAIDebug;
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess))
@@ -36,4 +35,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess))
 	TObjectPtr<UBehaviorTree> BehaviorTree;
 
+public:
+	static bool bShowAIDebug; // 디버그
 };

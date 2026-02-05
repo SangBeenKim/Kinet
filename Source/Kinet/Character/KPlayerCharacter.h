@@ -62,4 +62,8 @@ protected:
 	float DefaultFOV;
 	UPROPERTY(EditAnywhere, Category = "UserCustomize|Camera")
 	float AimFOV;
+
+public:
+	static bool bShowPlayerCharacterDebug; // 디버그
+
 };
