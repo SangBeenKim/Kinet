@@ -15,6 +15,12 @@ struct KINET_API FMenuButtonData : public FTableRowBase
 	FText ButtonLabel;
 	UPROPERTY(EditDefaultsOnly)
 	FText Description;
+
+	FMenuButtonData() {};
+	FMenuButtonData(FName InActionID, FText InButtonLabel, FText InDescription = FText::GetEmpty())
+		: ActionID(InActionID), ButtonLabel(InButtonLabel), Description(InDescription)
+	{
+	};
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMenuActionSignature, const FName&, ActionID);

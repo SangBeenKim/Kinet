@@ -6,6 +6,7 @@
 #include "UI/KHUD.h"
 #include "Character/KPlayerCharacter.h"
 #include "Components/KStatusComponent.h"
+#include "Game/KGameStateBase.h"
 
 void AKPlayerController::BeginPlay()
 {
@@ -66,6 +67,13 @@ void AKPlayerController::OnPossess(APawn* InPawn)
 
 void AKPlayerController::TogglePauseMenu()
 {
+	AKGameStateBase* GS = Cast<AKGameStateBase>(GetWorld()->GetGameState());
+	checkf(IsValid(GS), TEXT("GameState is invalid."));
+
+	if (GS->GetCurrentGameState() == EGameFlowState::GameClear) return;
+
+	if (GS->GetCurrentGameState() == EGameFlowState::GameOver) return;
+
 	bool bNewPauseState = !IsPaused();
 
 	SetPause(bNewPauseState);

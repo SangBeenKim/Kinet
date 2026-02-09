@@ -14,6 +14,10 @@ class KINET_API AKPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
+public:
+	UFUNCTION()
+	void HandleMenuAction(const FName& InActionID);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
@@ -21,8 +25,6 @@ protected:
 
 private:
 	void TogglePauseMenu();
-	UFUNCTION()
-	void HandleMenuAction(const FName& InActionID);
 	void CreateHUD();
 
 private:

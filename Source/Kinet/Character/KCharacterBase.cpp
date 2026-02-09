@@ -120,6 +120,8 @@ void AKCharacterBase::BeginPlay()
 
 void AKCharacterBase::Die()
 {
+	OnCharacterDead.Broadcast(this);
+
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
 	if (IsValid(CharacterAnim) && IsValid(DeathMontage) && !CharacterAnim->Montage_IsPlaying(DeathMontage))
@@ -135,5 +137,4 @@ void AKCharacterBase::Die()
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SetLifeSpan(1.f);
-
 }

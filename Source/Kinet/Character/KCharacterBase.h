@@ -11,6 +11,7 @@ class AKWeapon;
 class UKStatusComponent;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnAttackNotifySignature, FName);
+DECLARE_MULTICAST_DELEGATE_OneParam(OnCharacterDeadSignature, AKCharacterBase*);
 
 UCLASS()
 class KINET_API AKCharacterBase : public ACharacter
@@ -36,10 +37,9 @@ protected:
 
 public:
 	FOnAttackNotifySignature OnAttackNotify;
+	OnCharacterDeadSignature OnCharacterDead;
 
 protected:
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	//TObjectPtr<UAnimMontage> AttackMeleeMontage;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<UAnimMontage> TakeDamageMontage;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
