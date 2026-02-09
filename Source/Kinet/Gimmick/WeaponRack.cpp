@@ -29,12 +29,14 @@ void AWeaponRack::Interact(AActor* Interactor)
 	AKPlayerCharacter* PlayerCharacter = Cast<AKPlayerCharacter>(Interactor);
 	if (IsValid(PlayerCharacter))
 	{
+		if (IsValid(PlayerCharacter->GetCurrentWeapon())) return;
+
 		FActorSpawnParameters Params;
 		Params.Owner = PlayerCharacter;
 		Params.Instigator = PlayerCharacter->GetInstigator();
 
 		AKWeapon* SpawnedWeapon = GetWorld()->SpawnActor<AKWeapon>(WeaponClass, Params);
-		if (SpawnedWeapon) // 캐릭터가 이미 무기를 들고 있을 경우에 예외처리가 필요함
+		if (SpawnedWeapon)
 		{
 			SpawnedWeapon->SetActorHiddenInGame(true);
 			SpawnedWeapon->EquipWeapon(PlayerCharacter);
