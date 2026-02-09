@@ -42,7 +42,7 @@ AKPlayerCharacter::AKPlayerCharacter(const FObjectInitializer& ObjectInitializer
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 	SpringArmComp->SetupAttachment(RootComponent);
-	SpringArmComp->TargetArmLength = DefaultLength;//400.f;
+	SpringArmComp->TargetArmLength = DefaultLength;
 	SpringArmComp->bUsePawnControlRotation = true;
 	SpringArmComp->bInheritYaw = true;
 	SpringArmComp->bInheritPitch = true;
@@ -99,6 +99,8 @@ bool AKPlayerCharacter::CanJumpInternal_Implementation() const
 
 void AKPlayerCharacter::InputMove(const FInputActionValue& InValue)
 {
+	if (!IsValid(GetController())) return;
+
 	FVector2D MoveVector = InValue.Get<FVector2D>();
 
 	const FRotator ControlRotation = GetController()->GetControlRotation();
@@ -206,8 +208,8 @@ void AKPlayerCharacter::SetCameraAimView(bool bIsAiming)
 	{
 		StatusComp->bIsAiming = true;
 		bUseControllerRotationYaw = true;
-		SpringArmComp->TargetArmLength = AimLength;//125.f;
-		SpringArmComp->SetRelativeLocation(AimCameraPos/*FVector(0.f, 50.f, 70.f)*/);
+		SpringArmComp->TargetArmLength = AimLength;
+		SpringArmComp->SetRelativeLocation(AimCameraPos);
 		GetCharacterMovement()->MaxWalkSpeed = AimSpeed;
 		CameraComp->FieldOfView = AimFOV;
 	}
@@ -215,7 +217,7 @@ void AKPlayerCharacter::SetCameraAimView(bool bIsAiming)
 	{
 		StatusComp->bIsAiming = false;
 		bUseControllerRotationYaw = false;
-		SpringArmComp->TargetArmLength = DefaultLength;//400.f;
+		SpringArmComp->TargetArmLength = DefaultLength;
 		SpringArmComp->SetRelativeLocation(FVector::ZeroVector);
 		GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 		CameraComp->FieldOfView = DefaultFOV;
@@ -239,10 +241,10 @@ void AKPlayerCharacter::Die()
 {
 	Super::Die();
 
-	if (IsValid(GetController()))
-	{
-		GetController()->UnPossess();
-	}
+	//if (IsValid(GetController()))
+	//{
+	//	GetController()->UnPossess();
+	//}
 }
 
 
