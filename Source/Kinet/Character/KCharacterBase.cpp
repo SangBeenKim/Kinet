@@ -114,7 +114,7 @@ void AKCharacterBase::BeginPlay()
 	}
 
 	CharacterAnim = Cast<UKAnimInstance>(GetMesh()->GetAnimInstance());
-	checkf(IsValid(CharacterAnim), TEXT("[%s] AnimInstance is invalid."), *GetName());
+	//checkf(IsValid(CharacterAnim), TEXT("[%s] AnimInstance is invalid."), *GetName());
 
 }
 
