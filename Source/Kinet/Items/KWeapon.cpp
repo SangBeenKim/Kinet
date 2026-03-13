@@ -47,6 +47,12 @@ void AKWeapon::EquipWeapon(AKCharacterBase* InCharacter)
 	InCharacter->OnAttackNotify.RemoveAll(this);
 	InCharacter->OnAttackNotify.AddUObject(this, &ThisClass::HandleAttackSignal);
 
+	if (IsValid(Anim_Weapon))
+	{
+		InCharacter->SetWeaponAnimClass(Anim_Weapon);
+		//InCharacter->GetMesh()->LinkAnimClassLayers(Anim_Weapon);
+	}
+
 	if (IsValid(AM_GetWeapon))
 	{
 		InCharacter->PlayAnimMontage(AM_GetWeapon);

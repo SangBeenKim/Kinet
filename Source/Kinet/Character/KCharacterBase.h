@@ -29,6 +29,7 @@ public:
 		struct FDamageEvent const& DamageEvent,
 		class AController* EventInstigator,
 		AActor* DamageCauser) override;
+	void SetWeaponAnimClass(TSubclassOf<UAnimInstance> InAnimClass);
 
 protected:
 	virtual void OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted);
@@ -49,7 +50,11 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UKStatusComponent> StatusComp;
 	UPROPERTY()
-	TObjectPtr<UKAnimInstance> CharacterAnim;
+	TObjectPtr<UAnimInstance> CharacterAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	TSubclassOf<UAnimInstance> Anim_Unarmed;
+	UPROPERTY()
+	TSubclassOf<UAnimInstance> Anim_Weapon;
 	UPROPERTY()
 	TObjectPtr<AKWeapon> CurrentWeapon;
 	UPROPERTY(EditAnywhere, Category = "Character|Speed")

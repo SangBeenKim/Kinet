@@ -192,14 +192,21 @@ void AKPlayerCharacter::InputAiming()
 
 	if (!IsValid(CurrentWeapon)) return;
 
+	if (IsValid(Anim_Weapon))
+	{
+		GetMesh()->LinkAnimClassLayers(Anim_Weapon);
+	}
+
 	SetCameraAimView(true);
 	OnCombatModeChanged.Broadcast(true);
+
 }
 
 void AKPlayerCharacter::StopAiming()
 {
 	SetCameraAimView(false);
 	OnCombatModeChanged.Broadcast(false);
+	GetMesh()->LinkAnimClassLayers(Anim_Unarmed);
 }
 
 void AKPlayerCharacter::SetCameraAimView(bool bIsAiming)

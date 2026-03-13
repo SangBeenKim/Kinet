@@ -6,10 +6,11 @@
 #include "Animation/KAnimInstance.h"
 #include "Components/KStatusComponent.h"
 #include "Items/KWeapon.h"
+#include "Animation/KCharacterAnimInstanceBase.h"
 
 AKCharacterBase::AKCharacterBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
-	, NormalSpeed(350.f)
+	, NormalSpeed(600.f)
 	, AimSpeed(150.f)
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -96,6 +97,17 @@ float AKCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& Damage
 	return FinalDamageAmount;
 }
 
+void AKCharacterBase::SetWeaponAnimClass(TSubclassOf<UAnimInstance> InAnimClass)
+{
+	if (!IsValid(InAnimClass))
+	{
+		return;
+	}
+
+	Anim_Weapon = InAnimClass;
+
+}
+
 void AKCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
@@ -113,7 +125,16 @@ void AKCharacterBase::BeginPlay()
 		}
 	}
 
+	if (IsValid(Anim_Unarmed))
+	{
+		GetMesh()->LinkAnimClassLayers(Anim_Unarmed);
+	}
+
 	CharacterAnim = Cast<UKAnimInstance>(GetMesh()->GetAnimInstance());
+	if (!IsValid(CharacterAnim))
+	{
+		CharacterAnim = Cast<UKCharacterAnimInstanceBase>(GetMesh()->GetAnimInstance());
+	}
 	//checkf(IsValid(CharacterAnim), TEXT("[%s] AnimInstance is invalid."), *GetName());
 
 }

@@ -39,6 +39,8 @@ protected:
 	TObjectPtr<UAnimMontage> AM_AttackRanged;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Meta = (Units = cm))
 	float MaxAttackRange = 25000.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AnimLayer")
+	TSubclassOf<UAnimInstance> Anim_Weapon;
 
 private:
 	UPROPERTY()
