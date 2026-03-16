@@ -143,7 +143,7 @@ void AKCharacterBase::Die()
 {
 	OnCharacterDead.Broadcast(this);
 
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	//GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
 	if (IsValid(CharacterAnim) && IsValid(DeathMontage) && !CharacterAnim->Montage_IsPlaying(DeathMontage))
 	{
@@ -158,4 +158,32 @@ void AKCharacterBase::Die()
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SetLifeSpan(1.f);
+}
+
+EDashDirection AKCharacterBase::SelectDirectionalMontage(const FVector& FacingDirection, const FVector& MoveDirection)
+{
+	if (MoveDirection.IsNearlyZero())
+	{
+		return EDashDirection::Forward;
+	}
+
+	FRotator FacingRotation = FacingDirection.Rotation();
+	FRotator MoveRotation = MoveDirection.Rotation();
+
+	float DeltaYaw = FRotator::NormalizeAxis(MoveRotation.Yaw - FacingRotation.Yaw);
+	float AbsDeltaYaw = FMath::Abs(DeltaYaw);
+
+	if (AbsDeltaYaw <= 45.0f)
+	{
+		return EDashDirection::Forward;
+	}
+	else if (AbsDeltaYaw >= 135.0f)
+	{
+		return EDashDirection::Backward;
+	}
+	else
+	{
+		return (DeltaYaw > 0.0f) ? EDashDirection::Right : EDashDirection::Left;
+	}
+
 }

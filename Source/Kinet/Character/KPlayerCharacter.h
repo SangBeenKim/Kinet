@@ -32,6 +32,7 @@ private:
 	void InputInteract();
 	void InputAiming();
 	void StopAiming();
+	void InputDash();
 	void SetCameraAimView(bool bIsAiming);
 	void InputTest();
 	virtual void Die() override;

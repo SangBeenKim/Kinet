@@ -78,6 +78,7 @@ void AKPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EIC->BindAction(InputConfig->Interact, ETriggerEvent::Started, this, &ThisClass::InputInteract);
 		EIC->BindAction(InputConfig->Aiming, ETriggerEvent::Started, this, &ThisClass::InputAiming);
 		EIC->BindAction(InputConfig->Aiming, ETriggerEvent::Completed, this, &ThisClass::StopAiming);
+		EIC->BindAction(InputConfig->Dash, ETriggerEvent::Started, this, &ThisClass::InputDash);
 		//Test
 		EIC->BindAction(InputConfig->Test, ETriggerEvent::Started, this, &ThisClass::InputTest);
 		//Test
@@ -192,6 +193,12 @@ void AKPlayerCharacter::InputAiming()
 
 	if (!IsValid(CurrentWeapon)) return;
 
+	UAnimMontage* EquipAnimMontage = CurrentWeapon->GetEquipWeaponMontage();
+	if (IsValid(EquipAnimMontage))
+	{
+		PlayAnimMontage(EquipAnimMontage);
+	}
+
 	if (IsValid(Anim_Weapon))
 	{
 		GetMesh()->LinkAnimClassLayers(Anim_Weapon);
@@ -207,6 +214,42 @@ void AKPlayerCharacter::StopAiming()
 	SetCameraAimView(false);
 	OnCombatModeChanged.Broadcast(false);
 	GetMesh()->LinkAnimClassLayers(Anim_Unarmed);
+}
+
+void AKPlayerCharacter::InputDash()
+{
+	if (GetCharacterMovement()->IsFalling()) return;
+	
+	if (AController* PC = GetController())
+	{
+		PC->SetIgnoreMoveInput(true);
+	}
+
+	const FVector FacingDirection = GetActorForwardVector();
+	const FVector MoveDirection = GetMovementComponent()->GetLastInputVector();
+
+	const EDashDirection DashAnimMontageDirection = SelectDirectionalMontage(FacingDirection, MoveDirection);
+	UAnimMontage* DashAnimMontage = AM_Dash.FindRef(DashAnimMontageDirection);
+	if (!IsValid(DashAnimMontage))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DashAnimMontage is invalid."));
+		return;
+	}
+
+	TSharedPtr<FRootMotionSource_ConstantForce> ConstantForce = MakeShared<FRootMotionSource_ConstantForce>();
+
+	ConstantForce->InstanceName = TEXT("DashForce");
+	ConstantForce->AccumulateMode = ERootMotionAccumulateMode::Override;
+	ConstantForce->Priority = 5;
+	ConstantForce->Duration = 0.25f;
+	ConstantForce->Force = MoveDirection * 1500.f;
+
+	if (UCharacterMovementComponent* MovementComp = GetCharacterMovement())
+	{
+		PlayAnimMontage(DashAnimMontage);
+		MovementComp->ApplyRootMotionSource(ConstantForce);
+	}
+	
 }
 
 void AKPlayerCharacter::SetCameraAimView(bool bIsAiming)

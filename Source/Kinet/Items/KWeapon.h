@@ -18,6 +18,7 @@ public:
 	void UnequipWeapon();
 	void DestroyWeapon(AKCharacterBase* InCharacter);
 	void ExecuteAttackRanged();
+	UAnimMontage* GetEquipWeaponMontage() { return AM_GetWeapon; }
 
 protected:
 	virtual void BeginPlay() override;

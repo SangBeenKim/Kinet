@@ -10,6 +10,15 @@ class UWidgetComponent;
 class AKWeapon;
 class UKStatusComponent;
 
+UENUM(BlueprintType)
+enum class EDashDirection : uint8
+{
+	Forward,
+	Backward,
+	Left,
+	Right,
+};
+
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnAttackNotifySignature, FName);
 DECLARE_MULTICAST_DELEGATE_OneParam(OnCharacterDeadSignature, AKCharacterBase*);
 
@@ -35,6 +44,7 @@ protected:
 	virtual void OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted);
 	virtual void BeginPlay() override;
 	virtual void Die();
+	EDashDirection SelectDirectionalMontage(const FVector& FacingDirection, const FVector& MoveDirection);
 
 public:
 	FOnAttackNotifySignature OnAttackNotify;
@@ -61,5 +71,7 @@ protected:
 	float NormalSpeed;
 	UPROPERTY(EditAnywhere, Category = "Character|Speed")
 	float AimSpeed;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	TMap<EDashDirection, TObjectPtr<UAnimMontage>> AM_Dash;
 
 };
