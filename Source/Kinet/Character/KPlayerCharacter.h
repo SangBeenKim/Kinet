@@ -24,6 +24,7 @@ public:
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	virtual bool CanJumpInternal_Implementation() const override;
+	virtual void OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted) override;
 
 private:
 	void InputMove(const FInputActionValue& InValue);

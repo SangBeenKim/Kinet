@@ -29,6 +29,8 @@ public:
 	uint8 bIsActionLocked : 1;
 	UPROPERTY(Transient)
 	uint8 bIsAiming : 1;
+	UPROPERTY(Transient)
+	uint8 bIsDash : 1;
 
 private:
 	FOnUpdatedHealth OnUpdatedHealth;

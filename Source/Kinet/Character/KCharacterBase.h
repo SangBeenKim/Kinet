@@ -9,6 +9,8 @@ class UKAnimInstance;
 class UWidgetComponent;
 class AKWeapon;
 class UKStatusComponent;
+class UMotionWarpingComponent;
+class UParkourComponent;
 
 UENUM(BlueprintType)
 enum class EDashDirection : uint8
@@ -73,5 +75,8 @@ protected:
 	float AimSpeed;
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TMap<EDashDirection, TObjectPtr<UAnimMontage>> AM_Dash;
-
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UMotionWarpingComponent> MotionWarpingComp;
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UParkourComponent> ParkourComp;
 };

@@ -7,6 +7,8 @@
 #include "Components/KStatusComponent.h"
 #include "Items/KWeapon.h"
 #include "Animation/KCharacterAnimInstanceBase.h"
+#include "Components/ParkourComponent.h"
+#include "MotionWarpingComponent.h"
 
 AKCharacterBase::AKCharacterBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -26,11 +28,13 @@ AKCharacterBase::AKCharacterBase(const FObjectInitializer& ObjectInitializer)
 
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
-	GetCharacterMovement()->JumpZVelocity = 700.f;
+	GetCharacterMovement()->JumpZVelocity = 500.f;
 	GetCharacterMovement()->AirControl = 0.35f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	
 	StatusComp = CreateDefaultSubobject<UKStatusComponent>(TEXT("StatusComp"));
+	MotionWarpingComp = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarping"));
+	ParkourComp = CreateDefaultSubobject<UParkourComponent>(TEXT("ParkourComponent"));
 
 	HPBarWidgetComp = ObjectInitializer.CreateOptionalDefaultSubobject<UWidgetComponent>(this, TEXT("HPBarWidgetComp"));
 	if (IsValid(HPBarWidgetComp))
@@ -75,6 +79,11 @@ void AKCharacterBase::OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted)
 {
 	StatusComp->bIsActionLocked = false;
 
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		AnimInstance->OnMontageEnded.RemoveDynamic(this, &AKCharacterBase::OnMontageEnded);
+	}
 }
 
 float AKCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -125,6 +134,16 @@ void AKCharacterBase::BeginPlay()
 		}
 	}
 
+	if (IsValid(ParkourComp))
+	{
+		FCharacterPropertiesForParkour CharacterProperties;
+		CharacterProperties.Capsule = GetCapsuleComponent();
+		CharacterProperties.Mesh = GetMesh();
+		CharacterProperties.MotionWarping = MotionWarpingComp;
+
+		ParkourComp->SetCharacterProperties(CharacterProperties);
+	}
+
 	if (IsValid(Anim_Unarmed))
 	{
 		GetMesh()->LinkAnimClassLayers(Anim_Unarmed);
@@ -162,16 +181,11 @@ void AKCharacterBase::Die()
 
 EDashDirection AKCharacterBase::SelectDirectionalMontage(const FVector& FacingDirection, const FVector& MoveDirection)
 {
-	if (MoveDirection.IsNearlyZero())
-	{
-		return EDashDirection::Forward;
-	}
+	const FRotator FacingRotation = FacingDirection.Rotation();
+	const FRotator MoveRotation = MoveDirection.Rotation();
 
-	FRotator FacingRotation = FacingDirection.Rotation();
-	FRotator MoveRotation = MoveDirection.Rotation();
-
-	float DeltaYaw = FRotator::NormalizeAxis(MoveRotation.Yaw - FacingRotation.Yaw);
-	float AbsDeltaYaw = FMath::Abs(DeltaYaw);
+	const float DeltaYaw = FRotator::NormalizeAxis(MoveRotation.Yaw - FacingRotation.Yaw);
+	const float AbsDeltaYaw = FMath::Abs(DeltaYaw);
 
 	if (AbsDeltaYaw <= 45.0f)
 	{

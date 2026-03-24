@@ -17,6 +17,9 @@ public class Kinet : ModuleRules
 
 			// AI
 			"AIModule", "NavigationSystem", "GameplayTasks", 
+
+			// MotionWarping
+			"MotionWarping", 
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

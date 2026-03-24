@@ -1,25 +1,17 @@
 ﻿#include "Animation/AN_EnableMoveInput.h"
-#include "GameFramework/Character.h"
-#include "GameFramework/Controller.h"
+#include "Character/KCharacterBase.h"
+#include "Components/KStatusComponent.h"
 
 void UAN_EnableMoveInput::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
-	if (!MeshComp)
-	{
-		return;
-	}
+	if (!MeshComp) return;
 
-	ACharacter* Character = Cast<ACharacter>(MeshComp->GetOwner());
-	if (!Character)
-	{
-		return;
-	}
+	AKCharacterBase* Character = Cast<AKCharacterBase>(MeshComp->GetOwner());
+	if (!IsValid(Character)) return;
+	
+	UKStatusComponent* StatusComp = Character->GetStatusComponent();
+	if (!IsValid(StatusComp)) return;
 
-	AController* Controller = Character->GetController();
-	if (!Controller)
-	{
-		return;
-	}
-
-	Controller->SetIgnoreMoveInput(false);
+	StatusComp->bIsActionLocked = false;
+	StatusComp->bIsDash = false;
 }

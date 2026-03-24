@@ -10,6 +10,8 @@
 #include "Components/KStatusComponent.h"
 #include "Items/KWeapon.h"
 #include "Interfaces/Interactable.h"
+#include "Components/ParkourComponent.h"
+#include "Components/CapsuleComponent.h"
 
 bool AKPlayerCharacter::bShowPlayerCharacterDebug = false;
 
@@ -98,9 +100,16 @@ bool AKPlayerCharacter::CanJumpInternal_Implementation() const
 
 }
 
+void AKPlayerCharacter::OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted)
+{
+	StatusComp->bIsDash = false;
+
+	Super::OnMontageEnded(InMontage, bInterrupted);
+}
+
 void AKPlayerCharacter::InputMove(const FInputActionValue& InValue)
 {
-	if (!IsValid(GetController())) return;
+	if (!IsValid(GetController()) || StatusComp->bIsDash == true) return;
 
 	FVector2D MoveVector = InValue.Get<FVector2D>();
 
@@ -189,9 +198,7 @@ void AKPlayerCharacter::InputInteract()
 
 void AKPlayerCharacter::InputAiming()
 {
-	if (GetCharacterMovement()->IsFalling()) return;
-
-	if (!IsValid(CurrentWeapon)) return;
+	if (!IsValid(CurrentWeapon) || GetCharacterMovement()->IsFalling() || StatusComp->bIsActionLocked == true) return;
 
 	UAnimMontage* EquipAnimMontage = CurrentWeapon->GetEquipWeaponMontage();
 	if (IsValid(EquipAnimMontage))
@@ -218,31 +225,36 @@ void AKPlayerCharacter::StopAiming()
 
 void AKPlayerCharacter::InputDash()
 {
-	if (GetCharacterMovement()->IsFalling()) return;
-	
-	if (AController* PC = GetController())
-	{
-		PC->SetIgnoreMoveInput(true);
-	}
+	if (StatusComp->bIsDash == true || StatusComp->bIsActionLocked == true || GetCharacterMovement()->IsFalling()) return;
+
+	StatusComp->bIsDash = true;
 
 	const FVector FacingDirection = GetActorForwardVector();
 	const FVector MoveDirection = GetMovementComponent()->GetLastInputVector();
 
-	const EDashDirection DashAnimMontageDirection = SelectDirectionalMontage(FacingDirection, MoveDirection);
-	UAnimMontage* DashAnimMontage = AM_Dash.FindRef(DashAnimMontageDirection);
-	if (!IsValid(DashAnimMontage))
+	EDashDirection DashAnimMontageDirection;
+	FVector DashVelocity;
+	const float Strength = 1250.f;
+
+	if (MoveDirection.IsNearlyZero())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("DashAnimMontage is invalid."));
-		return;
+		DashAnimMontageDirection = EDashDirection::Forward;
+		DashVelocity = FacingDirection * Strength;
+	}
+	else
+	{
+		DashAnimMontageDirection = SelectDirectionalMontage(FacingDirection, MoveDirection);
+		DashVelocity = MoveDirection.GetSafeNormal() * Strength;
 	}
 
+	UAnimMontage* DashAnimMontage = AM_Dash.FindRef(DashAnimMontageDirection);
+	
 	TSharedPtr<FRootMotionSource_ConstantForce> ConstantForce = MakeShared<FRootMotionSource_ConstantForce>();
-
 	ConstantForce->InstanceName = TEXT("DashForce");
 	ConstantForce->AccumulateMode = ERootMotionAccumulateMode::Override;
 	ConstantForce->Priority = 5;
 	ConstantForce->Duration = 0.25f;
-	ConstantForce->Force = MoveDirection * 1500.f;
+	ConstantForce->Force = DashVelocity;
 
 	if (UCharacterMovementComponent* MovementComp = GetCharacterMovement())
 	{
@@ -284,7 +296,33 @@ void AKPlayerCharacter::SetCameraAimView(bool bIsAiming)
 
 void AKPlayerCharacter::InputTest()
 {
-	// TestLogic
+	UCharacterMovementComponent* MovementComp = GetCharacterMovement();
+	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
+	if (!IsValid(MovementComp) || !IsValid(CapsuleComp)) return;
+
+	FParkourCheckInputs ParkourCheckInputs;
+	ParkourCheckInputs.TraceForwardDirection = GetActorForwardVector();
+	ParkourCheckInputs.TraceHalfHeight = CapsuleComp->GetScaledCapsuleHalfHeight();
+	ParkourCheckInputs.TraceRadius = CapsuleComp->GetScaledCapsuleRadius();
+
+	switch (MovementComp->MovementMode)
+	{
+	case EMovementMode::MOVE_Falling:
+	case EMovementMode::MOVE_Flying:
+		// Falling, Flying 에선 기본값 사용
+		break;
+	default:
+		const FVector LocalVelocity = GetActorRotation().UnrotateVector(MovementComp->Velocity);
+		const float InputForwardDistance = FMath::GetMappedRangeValueClamped(
+			FVector2D(0.f, 500.f),
+			FVector2D(75.f, 350.f),
+			LocalVelocity.X
+		);
+		ParkourCheckInputs.TraceForwardDistance = InputForwardDistance;
+	}
+
+	bool bParkourSucceeded = ParkourComp->TryParkourAction(ParkourCheckInputs);
+
 }
 
 void AKPlayerCharacter::Die()

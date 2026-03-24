@@ -5,6 +5,7 @@ UKStatusComponent::UKStatusComponent()
 	, CurrentHP(100.f)
 	, bIsDead(false)
 	, bIsActionLocked(false)
+	, bIsDash(false)
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
