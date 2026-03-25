@@ -300,10 +300,12 @@ void AKPlayerCharacter::InputTest()
 	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
 	if (!IsValid(MovementComp) || !IsValid(CapsuleComp)) return;
 
+	FParkourCheckResult ParkourCheckResult;
 	FParkourCheckInputs ParkourCheckInputs;
+	ParkourCheckInputs.ActorLocation = GetActorLocation();
 	ParkourCheckInputs.TraceForwardDirection = GetActorForwardVector();
-	ParkourCheckInputs.TraceHalfHeight = CapsuleComp->GetScaledCapsuleHalfHeight();
-	ParkourCheckInputs.TraceRadius = CapsuleComp->GetScaledCapsuleRadius();
+	ParkourCheckInputs.CapsuleHalfHeight = CapsuleComp->GetScaledCapsuleHalfHeight();
+	ParkourCheckInputs.CapsuleRadius = CapsuleComp->GetScaledCapsuleRadius();
 
 	switch (MovementComp->MovementMode)
 	{
@@ -321,7 +323,7 @@ void AKPlayerCharacter::InputTest()
 		ParkourCheckInputs.TraceForwardDistance = InputForwardDistance;
 	}
 
-	bool bParkourSucceeded = ParkourComp->TryParkourAction(ParkourCheckInputs);
+	bool bParkourSucceeded = ParkourComp->TryParkourAction(ParkourCheckInputs, ParkourCheckResult);
 
 }
 

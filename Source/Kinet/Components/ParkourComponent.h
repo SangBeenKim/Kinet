@@ -17,10 +17,8 @@ enum class EParkourActionType : uint8
 	Mantle,
 };
 
-USTRUCT(BlueprintType)
-struct KINET_API FParkourCheckResult
+struct FParkourCheckResult
 {
-	GENERATED_BODY()
 	FParkourCheckResult()
 		: ActionType(EParkourActionType::None)
 		, bHasFrontLedge(false)
@@ -29,21 +27,6 @@ struct KINET_API FParkourCheckResult
 		, ObstacleHeight(0.f)
 		, ObstacleDepth(0.f)
 	{}
-
-	void Clear()
-	{
-		ActionType = EParkourActionType::None;
-		bHasFrontLedge = false;
-		FrontLedgeLocation = FVector::ZeroVector;
-		FrontLedgeNormal = FVector::ZeroVector;
-		bHasBackLedge = false;
-		BackLedgeLocation = FVector::ZeroVector;
-		BackLedgeNormal = FVector::ZeroVector;
-		bHasBackFloor = false;
-		BackFloorLocation = FVector::ZeroVector;
-		ObstacleHeight = 0.f;
-		ObstacleDepth = 0.f;
-	}
 
 	EParkourActionType ActionType;
 	bool bHasFrontLedge;
@@ -56,26 +39,26 @@ struct KINET_API FParkourCheckResult
 	FVector BackFloorLocation;
 	float ObstacleHeight;
 	float ObstacleDepth;
+	float BackLedgeHeight;
 };
 
-USTRUCT(BlueprintType)
-struct KINET_API FParkourCheckInputs
+struct FParkourCheckInputs
 {
-	GENERATED_BODY()
 	FParkourCheckInputs()
 		: TraceForwardDistance(75.f)
-		, TraceRadius(30.f)
-		, TraceHalfHeight(60.f)
+		, CapsuleRadius(30.f)
+		, CapsuleHalfHeight(60.f)
 	{}
 
 	FVector TraceForwardDirection;
+	FVector ActorLocation;
 	float TraceForwardDistance;
-	float TraceRadius;
-	float TraceHalfHeight;
+	float CapsuleRadius;
+	float CapsuleHalfHeight;
 };
 
 USTRUCT(BlueprintType)
-struct KINET_API FCharacterPropertiesForParkour
+struct FCharacterPropertiesForParkour
 {
 	GENERATED_BODY()
 
@@ -95,13 +78,12 @@ class KINET_API UParkourComponent : public UActorComponent
 public:	
 	UParkourComponent();
 	void SetCharacterProperties(const FCharacterPropertiesForParkour& InCharacterProperties);
-	bool TryParkourAction(const FParkourCheckInputs& InParkourCheckInputs);
+	bool TryParkourAction(const FParkourCheckInputs& InParkourCheckInputs, FParkourCheckResult& OutParkourCheckResult);
 
 protected:
 	virtual void BeginPlay() override;
 
-protected:
-	FParkourCheckResult ParkourResult;
-	FCharacterPropertiesForParkour CharacterProperties;
+private:
+	bool GenerateCapsuleTrace(FHitResult& OutHitResult, const FVector& InTraceStart, const FVector& InTraceEnd, float InCapsuleRadius, float InCapsuleHalfHeight, bool bFindParkourableActor = false);
 
 };

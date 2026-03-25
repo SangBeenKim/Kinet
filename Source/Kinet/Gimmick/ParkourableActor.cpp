@@ -35,15 +35,14 @@ AParkourableActor::AParkourableActor()
 
 }
 
-void AParkourableActor::GetLedgeTransforms(const FVector& InHitLocation, const FVector& InActorLocation, FParkourCheckResult& OutParkourResult)
+bool AParkourableActor::GetLedgeTransforms(const FVector& InHitLocation, const FVector& InActorLocation, FParkourCheckResult& OutParkourResult)
 {
 	USplineComponent* ClosestLedge = FindLedgeClosestToActor(InActorLocation);
 	if (!IsValid(ClosestLedge) || ClosestLedge->GetSplineLength() < MinLedgeWidth)
 	{
-		OutParkourResult.bHasFrontLedge = false;
-		return;
+		OutParkourResult.bHasFrontLedge = false; // 제거 예정
+		return false;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("ClosestLedge: %s"), *ClosestLedge->GetName());
 	
 	// 가까운 난간 좌표 구하기
 	const FVector ClosestLocalLocation = ClosestLedge->FindLocationClosestToWorldLocation(InHitLocation, ESplineCoordinateSpace::Local);
@@ -53,7 +52,7 @@ void AParkourableActor::GetLedgeTransforms(const FVector& InHitLocation, const F
 	const float ClampedDistance = FMath::Clamp(DistanceAlongSpline, EdgePadding, MaxSplineLength - EdgePadding);
 	const FTransform LedgeTransform = ClosestLedge->GetTransformAtDistanceAlongSpline(ClampedDistance, ESplineCoordinateSpace::World);
 
-	OutParkourResult.bHasFrontLedge = true;
+	OutParkourResult.bHasFrontLedge = true; // 제거 예정
 	OutParkourResult.FrontLedgeLocation = LedgeTransform.GetLocation();
 	OutParkourResult.FrontLedgeNormal = LedgeTransform.Rotator().Quaternion().GetUpVector();
 
@@ -61,17 +60,18 @@ void AParkourableActor::GetLedgeTransforms(const FVector& InHitLocation, const F
 	USplineComponent* OppositeLedge = OppositeLedges.FindRef(ClosestLedge);
 	if (!IsValid(OppositeLedge))
 	{
-		OutParkourResult.bHasBackLedge = false;
-		return;
+		OutParkourResult.bHasBackLedge = false; // 제거 예정
+		return false;
 	}
 
 	const FVector FrontLedgeLocation = OutParkourResult.FrontLedgeLocation;
 	const FTransform OppositeLedgeTransform = OppositeLedge->FindTransformClosestToWorldLocation(FrontLedgeLocation, ESplineCoordinateSpace::World);
 	
-	OutParkourResult.bHasBackLedge = true;
+	OutParkourResult.bHasBackLedge = true; // 제거 예정
 	OutParkourResult.BackLedgeLocation = OppositeLedgeTransform.GetLocation();
 	OutParkourResult.BackLedgeNormal = OppositeLedgeTransform.Rotator().Quaternion().GetUpVector();
 
+	return true;
 }
 
 void AParkourableActor::BeginPlay()

@@ -134,15 +134,15 @@ void AKCharacterBase::BeginPlay()
 		}
 	}
 
-	if (IsValid(ParkourComp))
-	{
-		FCharacterPropertiesForParkour CharacterProperties;
-		CharacterProperties.Capsule = GetCapsuleComponent();
-		CharacterProperties.Mesh = GetMesh();
-		CharacterProperties.MotionWarping = MotionWarpingComp;
+	//if (IsValid(ParkourComp))
+	//{
+	//	FCharacterPropertiesForParkour CharacterProperties;
+	//	CharacterProperties.Capsule = GetCapsuleComponent();
+	//	CharacterProperties.Mesh = GetMesh();
+	//	CharacterProperties.MotionWarping = MotionWarpingComp;
 
-		ParkourComp->SetCharacterProperties(CharacterProperties);
-	}
+	//	ParkourComp->SetCharacterProperties(CharacterProperties);
+	//}
 
 	if (IsValid(Anim_Unarmed))
 	{

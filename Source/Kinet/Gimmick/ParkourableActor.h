@@ -14,7 +14,7 @@ class KINET_API AParkourableActor : public AActor
 	
 public:	
 	AParkourableActor();
-	void GetLedgeTransforms(const FVector& InHitLocation, const FVector& InActorLocation, FParkourCheckResult& OutParkourResult);
+	bool GetLedgeTransforms(const FVector& InHitLocation, const FVector& InActorLocation, FParkourCheckResult& OutParkourResult);
 
 protected:
 	virtual void BeginPlay() override;
