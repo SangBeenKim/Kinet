@@ -38,7 +38,7 @@ void AKWeapon::EquipWeapon(AKCharacterBase* InCharacter)
 	if (!IsValid(InCharacter)) return;
 
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, true);
-	AttachToComponent(InCharacter->GetMesh(), AttachmentRules, FName(TEXT("hand_rSocket")));
+	AttachToComponent(InCharacter->GetMesh(), AttachmentRules, WeaponName);
 	SetActorEnableCollision(false);
 	StaticMeshComp->SetSimulatePhysics(false);
 	StaticMeshComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -49,8 +49,8 @@ void AKWeapon::EquipWeapon(AKCharacterBase* InCharacter)
 
 	if (IsValid(Anim_Weapon))
 	{
-		InCharacter->SetWeaponAnimClass(Anim_Weapon);
-		//InCharacter->GetMesh()->LinkAnimClassLayers(Anim_Weapon);
+		//InCharacter->SetWeaponAnimClass(Anim_Weapon);
+		InCharacter->GetMesh()->LinkAnimClassLayers(Anim_Weapon);
 	}
 
 	if (IsValid(AM_GetWeapon))
@@ -79,15 +79,16 @@ void AKWeapon::UnequipWeapon()
 
 	SetOwner(nullptr);
 	SetInstigator(nullptr);
+	Destroy();
 }
 
 void AKWeapon::DestroyWeapon(AKCharacterBase* InCharacter)
 {
 	if (GetOwner() != InCharacter) return;
 
-	UnequipWeapon();
-	
-	Destroy();
+	//UnequipWeapon();
+	//
+	//Destroy();
 
 }
 

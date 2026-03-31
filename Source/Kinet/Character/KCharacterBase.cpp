@@ -13,7 +13,6 @@
 AKCharacterBase::AKCharacterBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 	, NormalSpeed(600.f)
-	, AimSpeed(150.f)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -134,15 +133,16 @@ void AKCharacterBase::BeginPlay()
 		}
 	}
 
-	//if (IsValid(ParkourComp))
-	//{
-	//	FCharacterPropertiesForParkour CharacterProperties;
-	//	CharacterProperties.Capsule = GetCapsuleComponent();
-	//	CharacterProperties.Mesh = GetMesh();
-	//	CharacterProperties.MotionWarping = MotionWarpingComp;
+	if (IsValid(ParkourComp))
+	{
+		FCharacterPropertiesForParkour CharacterProperties;
+		CharacterProperties.Capsule = GetCapsuleComponent();
+		CharacterProperties.Anim = GetMesh()->GetAnimInstance();
+		CharacterProperties.Movement = GetCharacterMovement();
+		CharacterProperties.MotionWarping = MotionWarpingComp;
 
-	//	ParkourComp->SetCharacterProperties(CharacterProperties);
-	//}
+		ParkourComp->SetCharacterProperties(CharacterProperties);
+	}
 
 	if (IsValid(Anim_Unarmed))
 	{
@@ -154,15 +154,12 @@ void AKCharacterBase::BeginPlay()
 	{
 		CharacterAnim = Cast<UKCharacterAnimInstanceBase>(GetMesh()->GetAnimInstance());
 	}
-	//checkf(IsValid(CharacterAnim), TEXT("[%s] AnimInstance is invalid."), *GetName());
 
 }
 
 void AKCharacterBase::Die()
 {
 	OnCharacterDead.Broadcast(this);
-
-	//GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
 	if (IsValid(CharacterAnim) && IsValid(DeathMontage) && !CharacterAnim->Montage_IsPlaying(DeathMontage))
 	{

@@ -6,6 +6,7 @@
 
 class UCapsuleComponent;
 class USkeletalMeshComponent;
+class UCharacterMovementComponent;
 class UMotionWarpingComponent;
 
 UENUM()
@@ -65,7 +66,9 @@ struct FCharacterPropertiesForParkour
 	UPROPERTY()
 	TObjectPtr<UCapsuleComponent> Capsule;
 	UPROPERTY()
-	TObjectPtr<USkeletalMeshComponent> Mesh;
+	TObjectPtr<UAnimInstance> Anim;
+	UPROPERTY()
+	TObjectPtr<UCharacterMovementComponent> Movement;
 	UPROPERTY()
 	TObjectPtr<UMotionWarpingComponent> MotionWarping;
 };
@@ -79,11 +82,25 @@ public:
 	UParkourComponent();
 	void SetCharacterProperties(const FCharacterPropertiesForParkour& InCharacterProperties);
 	bool TryParkourAction(const FParkourCheckInputs& InParkourCheckInputs, FParkourCheckResult& OutParkourCheckResult);
+	bool DoingParkourAction() { return bDoingParkourAction; }
 
 protected:
 	virtual void BeginPlay() override;
 
 private:
+	EParkourActionType SelectParkourAction(const float Height, const float Depth);
+	bool DoParkourAction(const FParkourCheckResult& Input, const float Offset);
 	bool GenerateCapsuleTrace(FHitResult& OutHitResult, const FVector& InTraceStart, const FVector& InTraceEnd, float InCapsuleRadius, float InCapsuleHalfHeight, bool bFindParkourableActor = false);
+	void OnParkourActionEnded(UAnimMontage* InMontage, bool bInterrupted);
 
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "ParkourAnimation")
+	TMap<EParkourActionType, TObjectPtr<UAnimMontage>> AM_ParkourAnimMontage;
+
+private:
+	UPROPERTY()
+	FCharacterPropertiesForParkour CharacterProperties;
+	UPROPERTY()
+	TObjectPtr<AActor> CachedTarget;
+	bool bDoingParkourAction;
 };

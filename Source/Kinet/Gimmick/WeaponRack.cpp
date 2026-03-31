@@ -29,11 +29,22 @@ void AWeaponRack::Interact(AActor* Interactor)
 	AKPlayerCharacter* PlayerCharacter = Cast<AKPlayerCharacter>(Interactor);
 	if (IsValid(PlayerCharacter))
 	{
-		if (IsValid(PlayerCharacter->GetCurrentWeapon())) return;
-
 		FActorSpawnParameters Params;
 		Params.Owner = PlayerCharacter;
 		Params.Instigator = PlayerCharacter->GetInstigator();
+
+		if (IsValid(PlayerCharacter->GetCurrentWeapon()))
+		{
+			PlayerCharacter->GetCurrentWeapon()->UnequipWeapon();
+			AKWeapon* SpawnedWeapon = GetWorld()->SpawnActor<AKWeapon>(WeaponClass, Params);
+			if (SpawnedWeapon)
+			{
+				SpawnedWeapon->SetActorHiddenInGame(true);
+				SpawnedWeapon->EquipWeapon(PlayerCharacter);
+				SpawnedWeapon->SetActorHiddenInGame(false);
+			}
+			return;
+		}
 
 		AKWeapon* SpawnedWeapon = GetWorld()->SpawnActor<AKWeapon>(WeaponClass, Params);
 		if (SpawnedWeapon)
@@ -81,4 +92,5 @@ void AWeaponRack::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* Othe
 	{
 		InteractWidgetComp->SetVisibility(false);
 	}
+
 }

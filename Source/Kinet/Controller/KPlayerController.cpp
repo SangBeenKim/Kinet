@@ -2,7 +2,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Game/KGameInstance.h"
-#include "UI/PauseMenu.h" // <- 의존성 분리 예정
+#include "UI/PauseMenu.h"
 #include "UI/KHUD.h"
 #include "Character/KPlayerCharacter.h"
 #include "Components/KStatusComponent.h"

@@ -40,7 +40,7 @@ bool AParkourableActor::GetLedgeTransforms(const FVector& InHitLocation, const F
 	USplineComponent* ClosestLedge = FindLedgeClosestToActor(InActorLocation);
 	if (!IsValid(ClosestLedge) || ClosestLedge->GetSplineLength() < MinLedgeWidth)
 	{
-		OutParkourResult.bHasFrontLedge = false; // 제거 예정
+		OutParkourResult.bHasFrontLedge = false;
 		return false;
 	}
 	
@@ -52,7 +52,7 @@ bool AParkourableActor::GetLedgeTransforms(const FVector& InHitLocation, const F
 	const float ClampedDistance = FMath::Clamp(DistanceAlongSpline, EdgePadding, MaxSplineLength - EdgePadding);
 	const FTransform LedgeTransform = ClosestLedge->GetTransformAtDistanceAlongSpline(ClampedDistance, ESplineCoordinateSpace::World);
 
-	OutParkourResult.bHasFrontLedge = true; // 제거 예정
+	OutParkourResult.bHasFrontLedge = true;
 	OutParkourResult.FrontLedgeLocation = LedgeTransform.GetLocation();
 	OutParkourResult.FrontLedgeNormal = LedgeTransform.Rotator().Quaternion().GetUpVector();
 
@@ -60,14 +60,14 @@ bool AParkourableActor::GetLedgeTransforms(const FVector& InHitLocation, const F
 	USplineComponent* OppositeLedge = OppositeLedges.FindRef(ClosestLedge);
 	if (!IsValid(OppositeLedge))
 	{
-		OutParkourResult.bHasBackLedge = false; // 제거 예정
+		OutParkourResult.bHasBackLedge = false;
 		return false;
 	}
 
 	const FVector FrontLedgeLocation = OutParkourResult.FrontLedgeLocation;
 	const FTransform OppositeLedgeTransform = OppositeLedge->FindTransformClosestToWorldLocation(FrontLedgeLocation, ESplineCoordinateSpace::World);
 	
-	OutParkourResult.bHasBackLedge = true; // 제거 예정
+	OutParkourResult.bHasBackLedge = true;
 	OutParkourResult.BackLedgeLocation = OppositeLedgeTransform.GetLocation();
 	OutParkourResult.BackLedgeNormal = OppositeLedgeTransform.Rotator().Quaternion().GetUpVector();
 

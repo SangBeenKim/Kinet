@@ -59,7 +59,7 @@ protected:
 	TObjectPtr<UAnimMontage> DeathMontage;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI|HPBar")
 	TObjectPtr<UWidgetComponent> HPBarWidgetComp;
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UKStatusComponent> StatusComp;
 	UPROPERTY()
 	TObjectPtr<UAnimInstance> CharacterAnim;
@@ -71,8 +71,6 @@ protected:
 	TObjectPtr<AKWeapon> CurrentWeapon;
 	UPROPERTY(EditAnywhere, Category = "Character|Speed")
 	float NormalSpeed;
-	UPROPERTY(EditAnywhere, Category = "Character|Speed")
-	float AimSpeed;
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TMap<EDashDirection, TObjectPtr<UAnimMontage>> AM_Dash;
 	UPROPERTY(VisibleAnywhere)

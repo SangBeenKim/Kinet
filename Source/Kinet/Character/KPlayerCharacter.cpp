@@ -62,7 +62,6 @@ AKPlayerCharacter::AKPlayerCharacter(const FObjectInitializer& ObjectInitializer
 void AKPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 void AKPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -81,23 +80,8 @@ void AKPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EIC->BindAction(InputConfig->Aiming, ETriggerEvent::Started, this, &ThisClass::InputAiming);
 		EIC->BindAction(InputConfig->Aiming, ETriggerEvent::Completed, this, &ThisClass::StopAiming);
 		EIC->BindAction(InputConfig->Dash, ETriggerEvent::Started, this, &ThisClass::InputDash);
-		//Test
-		EIC->BindAction(InputConfig->Test, ETriggerEvent::Started, this, &ThisClass::InputTest);
-		//Test
+		EIC->BindAction(InputConfig->Test, ETriggerEvent::Started, this, &ThisClass::InputParkour);
 	}
-}
-
-bool AKPlayerCharacter::CanJumpInternal_Implementation() const
-{
-	bool bCanJump = Super::CanJumpInternal_Implementation();
-
-	if (StatusComp->bIsAiming == true)
-	{
-		bCanJump = false;
-	}
-
-	return bCanJump;
-
 }
 
 void AKPlayerCharacter::OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted)
@@ -127,17 +111,15 @@ void AKPlayerCharacter::InputLook(const FInputActionValue& InValue)
 {
 	FVector2D LookVector = InValue.Get<FVector2D>();
 
-	const float Sensitivity = 1.0f;
-
-	AddControllerYawInput(LookVector.X * Sensitivity);
-	AddControllerPitchInput(LookVector.Y * Sensitivity);
+	AddControllerYawInput(LookVector.X);
+	AddControllerPitchInput(LookVector.Y);
 }
 
 void AKPlayerCharacter::InputAttack()
 {
 	if (GetCharacterMovement()->IsFalling()) return;
 
-	if (!IsValid(CurrentWeapon)) return; // 기본 공격 추가시 함수 종료대신 그걸로 대체
+	if (!IsValid(CurrentWeapon)) return;
 	
 	if (StatusComp->bIsAiming == true)
 	{
@@ -200,27 +182,14 @@ void AKPlayerCharacter::InputAiming()
 {
 	if (!IsValid(CurrentWeapon) || GetCharacterMovement()->IsFalling() || StatusComp->bIsActionLocked == true) return;
 
-	UAnimMontage* EquipAnimMontage = CurrentWeapon->GetEquipWeaponMontage();
-	if (IsValid(EquipAnimMontage))
-	{
-		PlayAnimMontage(EquipAnimMontage);
-	}
-
-	if (IsValid(Anim_Weapon))
-	{
-		GetMesh()->LinkAnimClassLayers(Anim_Weapon);
-	}
-
 	SetCameraAimView(true);
 	OnCombatModeChanged.Broadcast(true);
-
 }
 
 void AKPlayerCharacter::StopAiming()
 {
 	SetCameraAimView(false);
 	OnCombatModeChanged.Broadcast(false);
-	GetMesh()->LinkAnimClassLayers(Anim_Unarmed);
 }
 
 void AKPlayerCharacter::InputDash()
@@ -234,17 +203,16 @@ void AKPlayerCharacter::InputDash()
 
 	EDashDirection DashAnimMontageDirection;
 	FVector DashVelocity;
-	const float Strength = 1250.f;
 
 	if (MoveDirection.IsNearlyZero())
 	{
 		DashAnimMontageDirection = EDashDirection::Forward;
-		DashVelocity = FacingDirection * Strength;
+		DashVelocity = FacingDirection * DashForce;
 	}
 	else
 	{
 		DashAnimMontageDirection = SelectDirectionalMontage(FacingDirection, MoveDirection);
-		DashVelocity = MoveDirection.GetSafeNormal() * Strength;
+		DashVelocity = MoveDirection.GetSafeNormal() * DashForce;
 	}
 
 	UAnimMontage* DashAnimMontage = AM_Dash.FindRef(DashAnimMontageDirection);
@@ -272,7 +240,6 @@ void AKPlayerCharacter::SetCameraAimView(bool bIsAiming)
 		bUseControllerRotationYaw = true;
 		SpringArmComp->TargetArmLength = AimLength;
 		SpringArmComp->SetRelativeLocation(AimCameraPos);
-		GetCharacterMovement()->MaxWalkSpeed = AimSpeed;
 		CameraComp->FieldOfView = AimFOV;
 	}
 	else
@@ -281,7 +248,6 @@ void AKPlayerCharacter::SetCameraAimView(bool bIsAiming)
 		bUseControllerRotationYaw = false;
 		SpringArmComp->TargetArmLength = DefaultLength;
 		SpringArmComp->SetRelativeLocation(FVector::ZeroVector);
-		GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 		CameraComp->FieldOfView = DefaultFOV;
 	}
 
@@ -294,8 +260,10 @@ void AKPlayerCharacter::SetCameraAimView(bool bIsAiming)
 	}
 }
 
-void AKPlayerCharacter::InputTest()
+void AKPlayerCharacter::InputParkour()
 {
+	if (ParkourComp->DoingParkourAction()) return;
+
 	UCharacterMovementComponent* MovementComp = GetCharacterMovement();
 	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
 	if (!IsValid(MovementComp) || !IsValid(CapsuleComp)) return;

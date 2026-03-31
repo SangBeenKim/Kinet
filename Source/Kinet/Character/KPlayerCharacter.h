@@ -23,7 +23,6 @@ public:
 
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-	virtual bool CanJumpInternal_Implementation() const override;
 	virtual void OnMontageEnded(UAnimMontage* InMontage, bool bInterrupted) override;
 
 private:
@@ -35,7 +34,7 @@ private:
 	void StopAiming();
 	void InputDash();
 	void SetCameraAimView(bool bIsAiming);
-	void InputTest();
+	void InputParkour();
 	virtual void Die() override;
 
 public:
@@ -64,6 +63,8 @@ protected:
 	float DefaultFOV;
 	UPROPERTY(EditAnywhere, Category = "UserCustomize|Camera")
 	float AimFOV;
+	UPROPERTY(EditAnywhere, Category = "UserCustomize|DashForce", meta = (ClampMin = "800", ClampMax = "2500"))
+	float DashForce = 800.f;
 
 public:
 	static bool bShowPlayerCharacterDebug; // 디버그

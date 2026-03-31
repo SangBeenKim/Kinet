@@ -48,6 +48,8 @@ private:
 	TArray<AActor*> HitHistory;
 	FVector LastMuzzlePos;
 	FVector LastGripPos;
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponName")
+	FName WeaponName;
 
 public:
 	static int32 ShowWeaponDebug; // 디버그
