@@ -12,6 +12,14 @@ public class Kinet : ModuleRules
 			// Initial Dependencies.
 			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", 
 
+			// UI
+			"UMG", "Slate", "SlateCore",
+
+			// AI
+			"AIModule", "NavigationSystem", "GameplayTasks", 
+
+			// MotionWarping
+			"MotionWarping", 
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
